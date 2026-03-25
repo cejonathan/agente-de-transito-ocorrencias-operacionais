@@ -1,6 +1,4 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Send, AlertTriangle, FileText, MapPin, Hash, Info, Save, Trash2, Edit2, History, Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -64,7 +62,7 @@ const CODIGOS_OPCOES = [
 
 const SETORES_INICIAIS = Array.from({ length: 15 }, (_, i) => `Setor ${i + 1}`);
 
-export default function TrafficAgentApp() {
+export default function App() {
   const [activeTab, setActiveTab] = useState<'simples' | 'especial' | 'historico'>('simples');
   
   // UI States
@@ -203,7 +201,7 @@ export default function TrafficAgentApp() {
   };
 
   const handleSaveReport = () => {
-    let reportData: any = {};
+    let reportData: { items?: { codigo: string, local: string }[], tipo?: string, descricao?: string, local?: string };
     
     if (activeTab === 'simples') {
       const finalCodigo = simplesInput.codigo === 'Outros' ? simplesInput.customCodigo : simplesInput.codigo;
@@ -279,7 +277,7 @@ export default function TrafficAgentApp() {
     }
   };
 
-  const handleSendWhatsApp = (reportData?: any, reportType?: string) => {
+  const handleSendWhatsApp = (reportData?: { items?: { codigo: string, local: string }[], tipo?: string, descricao?: string, local?: string }, reportType?: string) => {
     let message = '';
     const type = reportType || activeTab;
     let data = reportData;
@@ -307,7 +305,7 @@ export default function TrafficAgentApp() {
       const items = data.items || [];
       // Group by code
       const grouped: { [key: string]: string[] } = {};
-      items.forEach((item: any) => {
+      items.forEach((item: { codigo: string, local: string }) => {
         if (!grouped[item.codigo]) grouped[item.codigo] = [];
         grouped[item.codigo].push(item.local);
       });
