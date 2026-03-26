@@ -231,7 +231,7 @@ export default function App() {
     }
 
     const newReport: Report = {
-      id: editingId || crypto.randomUUID(),
+      id: editingId || (typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2)),
       type: activeTab === 'simples' ? 'simples' : 'especial',
       data: reportData,
       timestamp: Date.now(),
