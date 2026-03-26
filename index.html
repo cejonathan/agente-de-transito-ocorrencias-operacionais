@@ -67,6 +67,32 @@
         </div>
     </div>
 
+    <!-- Manage Options Modal -->
+    <div id="manage-options-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeManageOptionsModal()"></div>
+        <div class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between shrink-0">
+                <h3 id="manage-options-title" class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="settings" class="w-5 h-5 text-amber-500"></i> Gerenciar Opções
+                </h3>
+                <button onclick="closeManageOptionsModal()" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+                <div class="flex gap-2">
+                    <input id="new-option-input" type="text" placeholder="Nova opção..." class="flex-1 p-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-amber-500 focus:outline-none font-medium transition-all">
+                    <button onclick="addNewOption()" class="bg-amber-500 text-white p-3 rounded-xl active:scale-95 transition-all shadow-lg shadow-amber-100">
+                        <i data-lucide="plus" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div id="options-list" class="space-y-2">
+                    <!-- Options will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="bg-amber-500 text-white p-6 shadow-md sticky top-0 z-20">
         <div class="max-w-md mx-auto flex items-center justify-between">
@@ -110,7 +136,7 @@
         </div>
     </div>
 
-    <main class="max-w-md mx-auto p-4 space-y-6">
+    <main class="max-w-md mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6">
         <!-- Tabs -->
         <div class="flex bg-slate-200 p-1 rounded-xl shadow-inner overflow-x-auto no-scrollbar">
             <button onclick="switchTab('simples')" id="tab-simples" class="active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap">
@@ -124,8 +150,8 @@
             </button>
         </div>
 
-            <div id="content-simples" class="space-y-6">
-            <div class="bg-white rounded-2xl p-6 shadow-xl border border-slate-100 space-y-5">
+            <div id="content-simples" class="space-y-4 sm:space-y-6">
+            <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-100 space-y-4 sm:space-y-5">
                 <div id="edit-indicator-simples" class="hidden p-3 bg-amber-50 border border-amber-100 rounded-xl flex items-center justify-between">
                     <span class="text-xs font-bold text-amber-700 uppercase tracking-tight flex items-center gap-2">
                         <i data-lucide="edit-2" class="w-3 h-3"></i> Editando Registro
@@ -134,8 +160,11 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-500 uppercase flex items-center gap-2">
-                        <i data-lucide="hash" class="w-4 h-4"></i> Código
+                    <label class="text-sm font-bold text-slate-500 uppercase flex items-center justify-between gap-2">
+                        <span class="flex items-center gap-2"><i data-lucide="hash" class="w-4 h-4"></i> Código</span>
+                        <button onclick="openManageOptionsModal('codigo')" class="text-amber-500 hover:text-amber-600 transition-colors p-1">
+                            <i data-lucide="settings" class="w-4 h-4"></i>
+                        </button>
                     </label>
                     <select id="simples-codigo" onchange="toggleCustomCodigo()" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-amber-500 focus:outline-none text-lg font-medium transition-colors appearance-none">
                         <option value="">Selecione um código...</option>
@@ -144,22 +173,25 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-500 uppercase flex items-center gap-2">
-                        <i data-lucide="map-pin" class="w-4 h-4"></i> Local
+                    <label class="text-sm font-bold text-slate-500 uppercase flex items-center justify-between gap-2">
+                        <span class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> Local</span>
+                        <button onclick="openManageOptionsModal('local')" class="text-amber-500 hover:text-amber-600 transition-colors p-1">
+                            <i data-lucide="settings" class="w-4 h-4"></i>
+                        </button>
                     </label>
                     <div class="flex gap-2">
-                        <select id="simples-local" onchange="toggleCustomLocal()" class="flex-1 p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-amber-500 focus:outline-none text-lg font-medium transition-colors appearance-none">
+                        <select id="simples-local" onchange="toggleCustomLocal()" class="flex-1 min-w-0 p-3 sm:p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-amber-500 focus:outline-none text-base sm:text-lg font-medium transition-colors appearance-none">
                             <option value="">Selecione um local...</option>
                         </select>
-                        <button onclick="openLocalModal()" class="bg-amber-50 text-amber-600 p-4 rounded-xl active:scale-95 transition-all border-2 border-amber-100 hover:bg-amber-100">
-                            <i data-lucide="plus" class="w-6 h-6"></i>
+                        <button onclick="openLocalModal()" class="bg-amber-50 text-amber-600 p-3 sm:p-4 rounded-xl active:scale-95 transition-all border-2 border-amber-100 hover:bg-amber-100 shrink-0">
+                            <i data-lucide="plus" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </button>
                     </div>
-                    <input id="simples-custom-local" type="text" placeholder="Digite o local manualmente..." class="hidden w-full p-4 mt-2 bg-white border-2 border-amber-200 rounded-xl focus:border-amber-500 focus:outline-none text-lg font-medium transition-colors">
+                    <input id="simples-custom-local" type="text" placeholder="Digite o local manualmente..." class="hidden w-full p-3 sm:p-4 mt-2 bg-white border-2 border-amber-200 rounded-xl focus:border-amber-500 focus:outline-none text-base sm:text-lg font-medium transition-colors">
                 </div>
 
-                <button onclick="handleAddSimplesItem()" class="w-full bg-amber-500 text-white py-4 rounded-xl font-bold uppercase shadow-lg shadow-amber-100 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i data-lucide="plus" class="w-5 h-5"></i> Adicionar Ocorrência
+                <button onclick="handleAddSimplesItem()" class="w-full bg-amber-500 text-white py-3 sm:py-4 rounded-xl font-bold uppercase shadow-lg shadow-amber-100 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm sm:text-base">
+                    <i data-lucide="plus" class="w-4 h-4 sm:w-5 sm:h-5"></i> Adicionar Ocorrência
                 </button>
 
                 <div id="simples-list-container" class="hidden space-y-2 pt-4 border-t border-slate-100">
@@ -176,8 +208,8 @@
         </div>
 
         <!-- Form Especial -->
-        <div id="content-especial" class="hidden space-y-6">
-            <div class="bg-white rounded-2xl p-6 shadow-xl border border-slate-100 space-y-5">
+        <div id="content-especial" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-100 space-y-4 sm:space-y-5">
                 <div id="edit-indicator-especial" class="hidden p-3 bg-amber-50 border border-amber-100 rounded-xl flex items-center justify-between">
                     <span class="text-xs font-bold text-amber-700 uppercase tracking-tight flex items-center gap-2">
                         <i data-lucide="edit-2" class="w-3 h-3"></i> Editando Registro
@@ -190,9 +222,9 @@
                         <i data-lucide="info" class="w-4 h-4"></i> Tipo de Ocorrência
                     </label>
                     <select id="especial-tipo" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-amber-500 focus:outline-none text-lg font-medium transition-colors appearance-none">
-                        <option value="Sinistro">Sinistro</option>
-                        <option value="Buraco na Via">Buraco na Via</option>
-                        <option value="Outros">Outros</option>
+                        <option value="Sinistro de trânsito">1 - Sinistro de trânsito</option>
+                        <option value="Buraco na via">2 - Buraco na via</option>
+                        <option value="Relatório de Fiscalização">3 - Relatório de Fiscalização</option>
                     </select>
                 </div>
 
@@ -235,7 +267,7 @@
 
     <script>
         // --- CONSTANTS ---
-        const CODIGOS_OPCOES = [
+        const CODIGOS_DEFAULT = [
             "1 Acompanhamento de alunos", "2 Apoio em obras", "3 Apoio em eventos", "4 Apoio ao agente de trânsito",
             "5 Acompanhamento de veículos (escolta)", "6 Fiscalização de caminhão", "7 COI", "8 Ação educativa",
             "9 Autorização de Caçamba/Caminhão", "10 Apoio órgão público/EDP/Telefonia", "11 Monitoramento",
@@ -249,15 +281,17 @@
             "36 Deslocamento limpar VTR", "37 Blitz", "38 Fiscalização em extensão", "39 Controle de fluxo",
             "40 Fiscalização em ponto fixo", "41 Posturas", "42 Vistoria"
         ];
-        const SETORES_INICIAIS = Array.from({ length: 15 }, (_, i) => `Setor ${i + 1}`);
+        const LOCAIS_DEFAULT = Array.from({ length: 15 }, (_, i) => `Setor ${i + 1}`);
 
         // --- STATE ---
-        let activeTab = 'simples';
+        let activeTab = localStorage.getItem('traffic_active_tab') || 'simples';
         let reports = JSON.parse(localStorage.getItem('traffic_reports') || '[]');
-        let customLocais = JSON.parse(localStorage.getItem('custom_locais_options') || '[]');
+        let availableCodigos = JSON.parse(localStorage.getItem('traffic_available_codigos') || JSON.stringify(CODIGOS_DEFAULT));
+        let availableLocais = JSON.parse(localStorage.getItem('traffic_available_locais') || JSON.stringify(LOCAIS_DEFAULT));
         let agentName = localStorage.getItem('traffic_agent_name') || 'Agente Trânsito';
-        let simplesList = [];
-        let editingId = null;
+        let simplesList = JSON.parse(localStorage.getItem('traffic_simples_list_draft') || '[]');
+        let editingId = localStorage.getItem('traffic_editing_id') || null;
+        let manageType = 'codigo'; // 'codigo' or 'local'
 
         // --- INITIALIZATION ---
         function init() {
@@ -265,14 +299,70 @@
                 renderSelects();
                 renderHistory();
                 updateAgentNameDisplay();
+                loadDraft();
+                switchTab(activeTab);
+                
                 if (typeof lucide !== 'undefined') {
                     lucide.createIcons();
                 } else {
                     console.warn('Lucide not loaded yet, will retry in 500ms');
                     setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 500);
                 }
+
+                // Add auto-save listeners
+                const inputs = [
+                    'simples-codigo', 'simples-custom-codigo', 'simples-local', 'simples-custom-local',
+                    'especial-tipo', 'especial-descricao', 'especial-local'
+                ];
+                inputs.forEach(id => {
+                    document.getElementById(id).addEventListener('input', saveDraft);
+                });
+
             } catch (error) {
                 console.error('Initialization error:', error);
+            }
+        }
+
+        function saveDraft() {
+            const draft = {
+                simplesCodigo: document.getElementById('simples-codigo').value,
+                simplesCustomCodigo: document.getElementById('simples-custom-codigo').value,
+                simplesLocal: document.getElementById('simples-local').value,
+                simplesCustomLocal: document.getElementById('simples-custom-local').value,
+                especialTipo: document.getElementById('especial-tipo').value,
+                especialDescricao: document.getElementById('especial-descricao').value,
+                especialLocal: document.getElementById('especial-local').value,
+                activeTab: activeTab,
+                editingId: editingId
+            };
+            localStorage.setItem('traffic_form_draft', JSON.stringify(draft));
+            localStorage.setItem('traffic_simples_list_draft', JSON.stringify(simplesList));
+            localStorage.setItem('traffic_active_tab', activeTab);
+            if (editingId) localStorage.setItem('traffic_editing_id', editingId);
+            else localStorage.removeItem('traffic_editing_id');
+        }
+
+        function loadDraft() {
+            const draft = JSON.parse(localStorage.getItem('traffic_form_draft') || '{}');
+            if (draft.simplesCodigo) {
+                document.getElementById('simples-codigo').value = draft.simplesCodigo;
+                toggleCustomCodigo();
+            }
+            if (draft.simplesCustomCodigo) document.getElementById('simples-custom-codigo').value = draft.simplesCustomCodigo;
+            if (draft.simplesLocal) {
+                document.getElementById('simples-local').value = draft.simplesLocal;
+                toggleCustomLocal();
+            }
+            if (draft.simplesCustomLocal) document.getElementById('simples-custom-local').value = draft.simplesCustomLocal;
+            if (draft.especialTipo) document.getElementById('especial-tipo').value = draft.especialTipo;
+            if (draft.especialDescricao) document.getElementById('especial-descricao').value = draft.especialDescricao;
+            if (draft.especialLocal) document.getElementById('especial-local').value = draft.especialLocal;
+            
+            renderSimplesList();
+
+            if (editingId) {
+                if (activeTab === 'simples') document.getElementById('edit-indicator-simples').classList.remove('hidden');
+                else document.getElementById('edit-indicator-especial').classList.remove('hidden');
             }
         }
 
@@ -284,7 +374,7 @@
         function renderSelects() {
             const codigoSelect = document.getElementById('simples-codigo');
             codigoSelect.innerHTML = '<option value="">Selecione um código...</option>';
-            CODIGOS_OPCOES.forEach(opt => {
+            availableCodigos.forEach(opt => {
                 const el = document.createElement('option');
                 el.value = opt;
                 el.textContent = opt;
@@ -294,13 +384,7 @@
 
             const localSelect = document.getElementById('simples-local');
             localSelect.innerHTML = '<option value="">Selecione um local...</option>';
-            SETORES_INICIAIS.forEach(opt => {
-                const el = document.createElement('option');
-                el.value = opt;
-                el.textContent = opt;
-                localSelect.appendChild(el);
-            });
-            customLocais.forEach(opt => {
+            availableLocais.forEach(opt => {
                 const el = document.createElement('option');
                 el.value = opt;
                 el.textContent = opt;
@@ -312,6 +396,7 @@
         // --- UI ACTIONS ---
         function switchTab(tab) {
             activeTab = tab;
+            localStorage.setItem('traffic_active_tab', tab);
             document.getElementById('content-simples').classList.toggle('hidden', tab !== 'simples');
             document.getElementById('content-especial').classList.toggle('hidden', tab !== 'especial');
             document.getElementById('content-historico').classList.toggle('hidden', tab !== 'historico');
@@ -362,14 +447,100 @@
         function confirmNewLocal() {
             const name = document.getElementById('new-local-input').value.trim();
             if (!name) return showToast('Digite um nome.', 'error');
-            if ([...SETORES_INICIAIS, ...customLocais].includes(name)) return showToast('Já existe.', 'error');
-            customLocais.push(name);
-            localStorage.setItem('custom_locais_options', JSON.stringify(customLocais));
+            if (availableLocais.includes(name)) return showToast('Já existe.', 'error');
+            availableLocais.push(name);
+            localStorage.setItem('traffic_available_locais', JSON.stringify(availableLocais));
             renderSelects();
             document.getElementById('simples-local').value = name;
             document.getElementById('new-local-input').value = '';
             closeLocalModal();
             showToast('Local adicionado!');
+        }
+
+        function openManageOptionsModal(type) {
+            manageType = type;
+            document.getElementById('manage-options-title').innerHTML = `
+                <i data-lucide="settings" class="w-5 h-5 text-amber-500"></i> Gerenciar ${type === 'codigo' ? 'Códigos' : 'Locais'}
+            `;
+            document.getElementById('new-option-input').placeholder = `Novo ${type === 'codigo' ? 'código' : 'local'}...`;
+            document.getElementById('manage-options-modal').classList.replace('hidden', 'flex');
+            renderOptionsList();
+            lucide.createIcons();
+        }
+
+        function closeManageOptionsModal() {
+            document.getElementById('manage-options-modal').classList.replace('flex', 'hidden');
+        }
+
+        function renderOptionsList() {
+            const list = document.getElementById('options-list');
+            const options = manageType === 'codigo' ? availableCodigos : availableLocais;
+            list.innerHTML = '';
+            
+            options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100 group';
+                div.innerHTML = `
+                    <span class="text-sm font-medium text-slate-700 truncate mr-2">${opt}</span>
+                    <div class="flex gap-1 shrink-0">
+                        <button onclick="editOption(${idx})" class="p-2 text-slate-400 hover:text-amber-500 transition-colors">
+                            <i data-lucide="edit-2" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="deleteOption(${idx})" class="p-2 text-slate-400 hover:text-red-500 transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function addNewOption() {
+            const input = document.getElementById('new-option-input');
+            const val = input.value.trim();
+            if (!val) return showToast('Digite um valor.', 'error');
+            
+            const list = manageType === 'codigo' ? availableCodigos : availableLocais;
+            if (list.includes(val)) return showToast('Já existe.', 'error');
+            
+            list.push(val);
+            saveOptions();
+            input.value = '';
+            renderOptionsList();
+            renderSelects();
+            showToast('Adicionado!');
+        }
+
+        function deleteOption(idx) {
+            const list = manageType === 'codigo' ? availableCodigos : availableLocais;
+            list.splice(idx, 1);
+            saveOptions();
+            renderOptionsList();
+            renderSelects();
+            showToast('Excluído.');
+        }
+
+        function editOption(idx) {
+            const list = manageType === 'codigo' ? availableCodigos : availableLocais;
+            const newVal = prompt('Editar opção:', list[idx]);
+            if (newVal === null) return;
+            const trimmed = newVal.trim();
+            if (!trimmed) return showToast('Valor inválido.', 'error');
+            
+            list[idx] = trimmed;
+            saveOptions();
+            renderOptionsList();
+            renderSelects();
+            showToast('Atualizado!');
+        }
+
+        function saveOptions() {
+            if (manageType === 'codigo') {
+                localStorage.setItem('traffic_available_codigos', JSON.stringify(availableCodigos));
+            } else {
+                localStorage.setItem('traffic_available_locais', JSON.stringify(availableLocais));
+            }
         }
 
         let deleteTargetId = null;
@@ -400,6 +571,7 @@
             if (!finalCodigo || !finalLocal) return showToast('Preencha Código e Local.', 'error');
 
             simplesList.push({ codigo: finalCodigo, local: finalLocal });
+            saveDraft();
             renderSimplesList();
             document.getElementById('simples-local').value = '';
             document.getElementById('simples-custom-local').value = '';
@@ -437,12 +609,16 @@
 
         function removeSimplesItem(idx) {
             simplesList.splice(idx, 1);
+            saveDraft();
             renderSimplesList();
         }
 
         function handleClear() {
             simplesList = [];
             editingId = null;
+            localStorage.removeItem('traffic_form_draft');
+            localStorage.removeItem('traffic_simples_list_draft');
+            localStorage.removeItem('traffic_editing_id');
             document.getElementById('simples-codigo').value = '';
             document.getElementById('simples-custom-codigo').value = '';
             document.getElementById('simples-custom-codigo').classList.add('hidden');
@@ -495,6 +671,9 @@
             }
 
             localStorage.setItem('traffic_reports', JSON.stringify(reports));
+            localStorage.removeItem('traffic_form_draft');
+            localStorage.removeItem('traffic_simples_list_draft');
+            localStorage.removeItem('traffic_editing_id');
             showToast(editingId ? 'Atualizado!' : 'Salvo localmente!');
             handleClear();
         }
@@ -550,8 +729,7 @@
                     grp.simples.sort((a,b) => b.timestamp - a.timestamp).forEach(r => {
                         itemsHtml += `
                             <div class="space-y-2">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-[9px] text-slate-400 font-bold">${new Date(r.timestamp).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}</span>
+                                <div class="flex justify-end items-center">
                                     <div class="flex gap-2">
                                         <button onclick="editReport('${r.id}')" class="text-[9px] text-amber-500 font-bold uppercase">Editar</button>
                                         <button onclick="openConfirm('${r.id}')" class="text-[9px] text-red-400 font-bold uppercase">Remover</button>
@@ -584,7 +762,6 @@
                         <div class="flex justify-between items-start">
                             <div class="flex items-center gap-2">
                                 <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-600">${r.data.tipo}</span>
-                                <span class="text-[10px] text-slate-400 font-bold">${new Date(r.timestamp).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}</span>
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="editReport('${r.id}')" class="p-2 text-slate-400 hover:text-amber-500 transition-colors"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
@@ -611,6 +788,8 @@
             const r = reports.find(x => x.id === id);
             if (!r) return;
             editingId = id;
+            activeTab = r.type;
+            saveDraft();
             switchTab(r.type);
             if (r.type === 'simples') {
                 simplesList = [...r.data.items];
