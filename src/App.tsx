@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Send, AlertTriangle, FileText, MapPin, Hash, Info, Save, Trash2, Edit2, History, Plus, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Report {
   id: string;
