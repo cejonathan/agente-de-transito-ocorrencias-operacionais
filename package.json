@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "homepage": "https://cearazinho22.github.io/nome-do-seu-repositorio",
+  "homepage": "https://cejonathan.github.io/agente-de-transito-ocorrencias-operacionais/",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
