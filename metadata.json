@@ -1,5 +1,5 @@
 {
-  "name": "Agente de Trânsito - Registro de Ocorrências",
-  "description": "Sistema para agentes de trânsito registrarem ocorrências, salvarem histórico local e enviarem via WhatsApp.",
+  "name": "Agente Trânsito - Versão Portátil",
+  "description": "Versão de arquivo único (HTML) para agentes de trânsito registrarem ocorrências, salvarem histórico local e enviarem via WhatsApp. Funciona offline e sem build.",
   "requestFramePermissions": []
 }
