@@ -227,9 +227,11 @@
                         <i data-lucide="info" class="w-4 h-4"></i> Tipo de Ocorrência
                     </label>
                     <select id="especial-tipo" class="w-full p-4 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 focus:outline-none text-lg font-medium transition-colors appearance-none text-slate-100">
-                        <option value="Sinistro de trânsito">1 - Sinistro de trânsito</option>
-                        <option value="Buraco na via">2 - Buraco na via</option>
-                        <option value="Relatório de Fiscalização">3 - Relatório de Fiscalização</option>
+                        <option value="Sinistro de trânsito">Sinistro de trânsito</option>
+                        <option value="Remoção de veículo">Remoção de veículo</option>
+                        <option value="Remoção de veículo em estado de abandono">Remoção de veículo em estado de abandono</option>
+                        <option value="Relatório de fiscalização">Relatório de fiscalização</option>
+                        <option value="Buraco na via">Buraco na via</option>
                     </select>
                 </div>
 
@@ -252,7 +254,7 @@
                 <button onclick="handleSaveReport()" class="flex-1 min-w-[120px] bg-gradient-to-r from-slate-100 to-slate-300 text-slate-950 py-4 rounded-2xl font-black uppercase shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
                     <i data-lucide="save" class="w-5 h-5"></i> Salvar
                 </button>
-                <button onclick="handleSendWhatsApp()" class="flex-1 min-w-[120px] bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-4 rounded-2xl font-black uppercase shadow-xl shadow-indigo-200 active:scale-95 transition-all flex items-center justify-center gap-2">
+                <button onclick="handleSendWhatsApp()" class="flex-1 min-w-[120px] bg-gradient-to-r from-green-600 to-emerald-700 text-white py-4 rounded-2xl font-black uppercase shadow-xl shadow-green-900/40 active:scale-95 transition-all flex items-center justify-center gap-2">
                     <i data-lucide="send" class="w-5 h-5"></i> WhatsApp
                 </button>
                 <button onclick="handleClear()" class="w-full bg-slate-800 text-slate-400 py-3 rounded-xl font-bold uppercase text-xs active:scale-95 transition-all flex items-center justify-center gap-2 border border-slate-700">
