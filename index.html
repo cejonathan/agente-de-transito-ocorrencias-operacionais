@@ -433,6 +433,8 @@
             "40 Fiscalização em ponto fixo", "41 Posturas", "42 Vistoria"
         ];
         const LOCAIS_DEFAULT = Array.from({ length: 15 }, (_, i) => `Setor ${i + 1}`);
+        const DET_CODES = ["02", "03", "06", "07", "08", "10", "12", "17", "18", "20", "22", "35", "41", "44", "46", "47", "49", "54", "59", "61", "62", "65", "68", "75", "86", "89"];
+        const VTR_CODES = ["1389", "1390", "1393", "1394", "1395"];
 
         // --- STATE ---
         let activeTab = localStorage.getItem('traffic_active_tab') || 'simples';
@@ -447,6 +449,9 @@
         let apoioCount = 0;
         let socorroCount = 0;
         let vitimasCount = 0;
+        let sinistroAgentesCount = 0;
+        let sinistroVtrsCount = 0;
+        let sinistroPhotos = [];
 
         // --- INITIALIZATION ---
         function init() {
@@ -469,10 +474,8 @@
                     'simples-codigo', 'simples-custom-codigo', 'simples-local', 'simples-custom-local',
                     'especial-tipo', 'especial-descricao', 'especial-local',
                     'sinistro-data', 'sinistro-hora', 'sinistro-numero', 'sinistro-origem',
-                    'sinistro-endereco', 'sinistro-caracteristica', 'sinistro-sexo',
-                    'sinistro-socorro', 'sinistro-socorro-prefixo', 'sinistro-socorro-responsavel',
-                    'sinistro-resumo', 'sinistro-agentes-select', 'sinistro-agentes-custom',
-                    'sinistro-vtr', 'sinistro-supervisao', 'sinistro-responsavel',
+                    'sinistro-endereco', 'sinistro-caracteristica',
+                    'sinistro-resumo', 'sinistro-supervisao', 'sinistro-responsavel',
                     'sinistro-matricula', 'sinistro-data-final'
                 ];
                 inputs.forEach(id => {
@@ -504,15 +507,24 @@
                     origem: document.getElementById('sinistro-origem').value,
                     endereco: document.getElementById('sinistro-endereco').value,
                     caracteristica: document.getElementById('sinistro-caracteristica').value,
-                    sexo: document.getElementById('sinistro-sexo').value,
                     resumo: document.getElementById('sinistro-resumo').value,
-                    agentesSelect: document.getElementById('sinistro-agentes-select').value,
-                    agentesCustom: document.getElementById('sinistro-agentes-custom').value,
-                    vtr: document.getElementById('sinistro-vtr').value,
                     supervisao: document.getElementById('sinistro-supervisao').value,
                     responsavel: document.getElementById('sinistro-responsavel').value,
                     matricula: document.getElementById('sinistro-matricula').value,
                     dataFinal: document.getElementById('sinistro-data-final').value,
+                    agentes: Array.from(document.getElementById('sinistro-agentes-container').children).map(div => {
+                        const id = div.id.split('-').pop();
+                        const select = document.getElementById(`sinistro-agente-select-${id}`).value;
+                        const custom = document.getElementById(`sinistro-agente-custom-${id}`).value;
+                        return select === 'Outros' ? custom : select;
+                    }).filter(v => v),
+                    vtrs: Array.from(document.getElementById('sinistro-vtrs-container').children).map(div => {
+                        const id = div.id.split('-').pop();
+                        const select = document.getElementById(`sinistro-vtr-select-${id}`).value;
+                        const custom = document.getElementById(`sinistro-vtr-custom-${id}`).value;
+                        return select === 'Outros' ? custom : select;
+                    }).filter(v => v),
+                    photos: sinistroPhotos,
                     envolvidos: Array.from(document.getElementById('envolvidos-container').children).map(div => {
                         const id = div.id.split('-')[1];
                         return {
@@ -542,6 +554,7 @@
                         const id = div.id.split('-')[1];
                         return {
                             nome: document.getElementById(`vitima-nome-${id}`).value,
+                            sexo: document.getElementById(`vitima-sexo-${id}`).value,
                             estado: document.getElementById(`vitima-estado-${id}`).value,
                             descricao: document.getElementById(`vitima-descricao-${id}`).value
                         };
@@ -583,16 +596,25 @@
                 document.getElementById('sinistro-origem').value = draft.sinistro.origem || '';
                 document.getElementById('sinistro-endereco').value = draft.sinistro.endereco || '';
                 document.getElementById('sinistro-caracteristica').value = draft.sinistro.caracteristica || '';
-                document.getElementById('sinistro-sexo').value = draft.sinistro.sexo || '';
                 
                 document.getElementById('sinistro-resumo').value = draft.sinistro.resumo || '';
-                document.getElementById('sinistro-agentes-select').value = draft.sinistro.agentesSelect || '';
-                document.getElementById('sinistro-agentes-custom').value = draft.sinistro.agentesCustom || '';
-                document.getElementById('sinistro-vtr').value = draft.sinistro.vtr || '';
                 document.getElementById('sinistro-supervisao').value = draft.sinistro.supervisao || '';
                 document.getElementById('sinistro-responsavel').value = draft.sinistro.responsavel || '';
                 document.getElementById('sinistro-matricula').value = draft.sinistro.matricula || '';
                 document.getElementById('sinistro-data-final').value = draft.sinistro.dataFinal || '';
+
+                if (Array.isArray(draft.sinistro.agentes)) {
+                    document.getElementById('sinistro-agentes-container').innerHTML = '';
+                    draft.sinistro.agentes.forEach(it => addAgenteSinistro(it));
+                }
+                if (Array.isArray(draft.sinistro.vtrs)) {
+                    document.getElementById('sinistro-vtrs-container').innerHTML = '';
+                    draft.sinistro.vtrs.forEach(it => addVtrSinistro(it));
+                }
+                if (Array.isArray(draft.sinistro.photos)) {
+                    sinistroPhotos = draft.sinistro.photos;
+                    renderPhotos();
+                }
 
                 if (Array.isArray(draft.sinistro.envolvidos)) {
                     document.getElementById('envolvidos-container').innerHTML = '';
@@ -1596,17 +1618,22 @@
                     document.getElementById('sinistro-numero').value = d.numero || '';
                     document.getElementById('sinistro-origem').value = d.origem || 'Fiscalização de rotina';
                     document.getElementById('sinistro-endereco').value = d.endereco || '';
-                    document.getElementById('sinistro-caracteristica').value = d.caracteristica || 'Com vítima';
-                    document.getElementById('sinistro-sexo').value = d.sexo || 'Masculino';
+                    document.getElementById('sinistro-caracteristica').value = d.caracteristica || '';
                     
                     document.getElementById('sinistro-resumo').value = d.resumo || '';
-                    document.getElementById('sinistro-agentes-select').value = d.agentesSelect || 'DET 08';
-                    document.getElementById('sinistro-agentes-custom').value = d.agentesCustom || '';
-                    document.getElementById('sinistro-vtr').value = d.vtr || '1390';
                     document.getElementById('sinistro-supervisao').value = d.supervisao || '';
                     document.getElementById('sinistro-responsavel').value = d.responsavel || '';
                     document.getElementById('sinistro-matricula').value = d.matricula || '';
                     document.getElementById('sinistro-data-final').value = d.dataFinal || '';
+
+                    document.getElementById('sinistro-agentes-container').innerHTML = '';
+                    if (Array.isArray(d.agentes)) d.agentes.forEach(ag => addAgenteSinistro(ag));
+
+                    document.getElementById('sinistro-vtrs-container').innerHTML = '';
+                    if (Array.isArray(d.vtrs)) d.vtrs.forEach(v => addVtrSinistro(v));
+
+                    sinistroPhotos = Array.isArray(d.photos) ? d.photos : [];
+                    renderPhotos();
 
                     document.getElementById('envolvidos-container').innerHTML = '';
                     if (Array.isArray(d.envolvidos)) d.envolvidos.forEach(env => addEnvolvido(env));
@@ -1633,84 +1660,6 @@
         }
 
         // --- WHATSAPP ---
-        function handleSendWhatsApp() {
-            let message = '';
-            if (activeTab === 'simples') {
-                const codigoSelect = document.getElementById('simples-codigo').value;
-                const customCodigo = document.getElementById('simples-custom-codigo').value;
-                const localSelect = document.getElementById('simples-local').value;
-                const customLocal = document.getElementById('simples-custom-local').value;
-                const finalCodigo = codigoSelect === 'Outros' ? customCodigo : codigoSelect;
-                const finalLocal = localSelect === 'Outros' ? customLocal : localSelect;
-
-                const finalItems = [...simplesList];
-                if (finalCodigo && finalLocal) finalItems.push({ codigo: finalCodigo, local: finalLocal });
-                if (finalItems.length === 0) return showToast('Adicione ocorrências.', 'error');
-                
-                message = formatSimplesMessage(finalItems);
-            } else {
-                const tipo = document.getElementById('especial-tipo').value;
-                if (tipo === 'Sinistro de trânsito') {
-                    message = formatSinistroMessage({
-                        data: document.getElementById('sinistro-data').value,
-                        hora: document.getElementById('sinistro-hora').value,
-                        numero: document.getElementById('sinistro-numero').value,
-                        origem: document.getElementById('sinistro-origem').value,
-                        endereco: document.getElementById('sinistro-endereco').value,
-                        caracteristica: document.getElementById('sinistro-caracteristica').value,
-                        sexo: document.getElementById('sinistro-sexo').value,
-                        resumo: document.getElementById('sinistro-resumo').value,
-                        agentesSelect: document.getElementById('sinistro-agentes-select').value,
-                        agentesCustom: document.getElementById('sinistro-agentes-custom').value,
-                        vtr: document.getElementById('sinistro-vtr').value,
-                        supervisao: document.getElementById('sinistro-supervisao').value,
-                        responsavel: document.getElementById('sinistro-responsavel').value,
-                        matricula: document.getElementById('sinistro-matricula').value,
-                        dataFinal: document.getElementById('sinistro-data-final').value,
-                        envolvidos: Array.from(document.getElementById('envolvidos-container').children).map(div => {
-                            const id = div.id.split('-')[1];
-                            return {
-                                tipo: document.getElementById(`envolvido-tipo-${id}`).value,
-                                custom: document.getElementById(`envolvido-custom-${id}`).value,
-                                placa: document.getElementById(`envolvido-placa-${id}`).value,
-                                cnh: document.getElementById(`envolvido-cnh-${id}`).value
-                            };
-                        }),
-                        apoio: Array.from(document.getElementById('apoio-container').children).map(div => {
-                            const id = div.id.split('-')[1];
-                            return {
-                                tipo: document.getElementById(`apoio-tipo-${id}`).value,
-                                prefixo: document.getElementById(`apoio-prefixo-${id}`).value,
-                                responsavel: document.getElementById(`apoio-responsavel-${id}`).value
-                            };
-                        }),
-                        socorro: Array.from(document.getElementById('socorro-container').children).map(div => {
-                            const id = div.id.split('-')[1];
-                            return {
-                                tipo: document.getElementById(`socorro-tipo-${id}`).value,
-                                prefixo: document.getElementById(`socorro-prefixo-${id}`).value,
-                                responsavel: document.getElementById(`socorro-responsavel-${id}`).value
-                            };
-                        }),
-                        vitimas: Array.from(document.getElementById('vitimas-container').children).map(div => {
-                            const id = div.id.split('-')[1];
-                            return {
-                                nome: document.getElementById(`vitima-nome-${id}`).value,
-                                estado: document.getElementById(`vitima-estado-${id}`).value,
-                                descricao: document.getElementById(`vitima-descricao-${id}`).value
-                            };
-                        })
-                    });
-                } else {
-                    const desc = document.getElementById('especial-descricao').value;
-                    const loc = document.getElementById('especial-local').value;
-                    if (!desc || !loc) return showToast('Preencha os campos.', 'error');
-                    message = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${agentName}\n\n*OCORRÊNCIA ESPECIAL*\n\n*Tipo:* ${tipo}\n*Descrição:* ${desc}\n*Local:* ${loc}`;
-                }
-            }
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-        }
-
         function sendWhatsAppSingle(id) {
             const r = reports.find(x => x.id === id);
             if (!r) return;
@@ -1731,13 +1680,14 @@
         function formatSinistroMessage(d) {
             let message = `*RELATÓRIO DE SINISTRO DE TRÂNSITO*\n\n`;
             message += `*Data:* ${d.data}\n*Hora:* ${d.hora}\n*N° Ocorrência:* ${d.numero}\n*Origem:* ${d.origem}\n*Endereço:* ${d.endereco}\n`;
-            message += `*Característica:* ${d.caracteristica}\n*Sexo:* ${d.sexo}\n\n`;
+            message += `*Característica:* ${d.caracteristica}\n\n`;
             
             if (Array.isArray(d.vitimas) && d.vitimas.length > 0 && d.caracteristica === 'Com vítima') {
                 message += `*VÍTIMAS:*\n`;
                 d.vitimas.forEach((v, i) => {
                     message += `Vítima ${i + 1}:\n`;
                     message += `- Nome: ${v.nome || '---'}\n`;
+                    message += `- Sexo: ${v.sexo || '---'}\n`;
                     message += `- Estado: ${v.estado || '---'}\n`;
                     message += `- Descrição: ${v.descricao || '---'}\n`;
                 });
@@ -1776,8 +1726,14 @@
 
             message += `*RESUMO DOS FATOS:* ${d.resumo}\n\n`;
             
-            const agenteFinal = d.agentesSelect === 'Outros' ? d.agentesCustom : d.agentesSelect;
-            message += `*Agentes:* ${agenteFinal}\n*VTR:* ${d.vtr}\n*Supervisão:* ${d.supervisao}\n`;
+            if (Array.isArray(d.agentes) && d.agentes.length > 0) {
+                message += `*Agentes:* ${d.agentes.join(', ')}\n`;
+            }
+            if (Array.isArray(d.vtrs) && d.vtrs.length > 0) {
+                message += `*VTR:* ${d.vtrs.join(', ')}\n`;
+            }
+            
+            message += `*Supervisão:* ${d.supervisao}\n`;
             message += `*Responsável pelo Relatório:* ${d.responsavel}\n*Matrícula:* ${d.matricula}\n*Data:* ${d.dataFinal}`;
             return message;
         }
