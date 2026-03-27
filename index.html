@@ -235,18 +235,162 @@
                     </select>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-400 uppercase flex items-center gap-2">
-                        <i data-lucide="file-text" class="w-4 h-4"></i> Descrição
-                    </label>
-                    <textarea id="especial-descricao" placeholder="Descreva a situação..." rows="3" class="w-full p-4 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 focus:outline-none text-lg font-medium transition-colors text-slate-100"></textarea>
+                <div id="generic-especial-fields" class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-400 uppercase flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-4 h-4"></i> Descrição
+                        </label>
+                        <textarea id="especial-descricao" placeholder="Descreva a situação..." rows="3" class="w-full p-4 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 focus:outline-none text-lg font-medium transition-colors text-slate-100"></textarea>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-400 uppercase flex items-center gap-2">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i> Local
+                        </label>
+                        <input id="especial-local" type="text" placeholder="Ex: Cruzamento X com Y" class="w-full p-4 bg-slate-800 border-2 border-slate-700 rounded-2xl focus:border-indigo-500 focus:outline-none text-lg font-medium transition-colors text-slate-100">
+                    </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-400 uppercase flex items-center gap-2">
-                        <i data-lucide="map-pin" class="w-4 h-4"></i> Local
-                    </label>
-                    <input id="especial-local" type="text" placeholder="Ex: Cruzamento X com Y" class="w-full p-4 bg-slate-800 border-2 border-slate-700 rounded-2xl focus:border-indigo-500 focus:outline-none text-lg font-medium transition-colors text-slate-100">
+                <!-- Sinistro de Trânsito Fields -->
+                <div id="sinistro-fields" class="hidden space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Data</label>
+                            <input type="date" id="sinistro-data" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Hora</label>
+                            <input type="time" id="sinistro-hora" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">N° Ocorrência</label>
+                            <input type="text" id="sinistro-numero" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Origem</label>
+                            <select id="sinistro-origem" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                                <option value="Fiscalização de rotina">Fiscalização de rotina</option>
+                                <option value="COTRAN">COTRAN</option>
+                                <option value="COI">COI</option>
+                                <option value="CECOM">CECOM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Endereço</label>
+                        <input type="text" id="sinistro-endereco" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Característica</label>
+                            <select id="sinistro-caracteristica" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                                <option value="Com vítima">Com vítima</option>
+                                <option value="Sem vítima">Sem vítima</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Sexo</label>
+                            <select id="sinistro-sexo" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                                <option value="Masculino">Masculino</option>
+                                <option value="Feminino">Feminino</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Envolvidos</label>
+                        <div id="envolvidos-container" class="space-y-3"></div>
+                        <button onclick="addEnvolvido()" class="w-full py-2 bg-slate-800 border border-dashed border-slate-600 rounded-xl text-xs font-bold text-slate-400 hover:bg-slate-700 transition-colors">
+                            + Adicionar Envolvido
+                        </button>
+                    </div>
+
+                    <div class="space-y-4 p-4 bg-slate-900/50 rounded-2xl border border-slate-800">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Socorro Médico</label>
+                            <select id="sinistro-socorro" onchange="toggleSocorroFields()" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                                <option value="Sem Necessidade">Sem Necessidade</option>
+                                <option value="SAMU">SAMU</option>
+                                <option value="RESGATE">RESGATE</option>
+                                <option value="Vítima Recusou">Vítima Recusou</option>
+                            </select>
+                        </div>
+                        <div id="socorro-vtr-fields" class="hidden grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-400 uppercase">Prefixo VTR</label>
+                                <input type="text" id="sinistro-socorro-prefixo" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-400 uppercase">Responsável</label>
+                                <input type="text" id="sinistro-socorro-responsavel" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Apoio Policial</label>
+                        <div id="apoio-container" class="space-y-3"></div>
+                        <button onclick="addApoio()" class="w-full py-2 bg-slate-800 border border-dashed border-slate-600 rounded-xl text-xs font-bold text-slate-400 hover:bg-slate-700 transition-colors">
+                            + Adicionar Apoio Policial
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Resumo dos Fatos</label>
+                        <textarea id="sinistro-resumo" rows="3" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100" placeholder="Descreva os detalhes do sinistro..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Agentes Envolvidos</label>
+                            <div class="flex flex-col gap-2">
+                                <select id="sinistro-agentes-select" onchange="toggleCustomAgente()" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                                    <option value="DET 08">DET 08</option>
+                                    <option value="DET 10">DET 10</option>
+                                    <option value="DET 12">DET 12</option>
+                                    <option value="DET 61">DET 61</option>
+                                    <option value="DET 86">DET 86</option>
+                                    <option value="Outros">Outros (Escrever manualmente)</option>
+                                </select>
+                                <input type="text" id="sinistro-agentes-custom" class="hidden w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100" placeholder="Nome do Agente">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">VTR</label>
+                            <select id="sinistro-vtr" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                                <option value="1390">1390</option>
+                                <option value="1393">1393</option>
+                                <option value="1395">1395</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Supervisão</label>
+                            <input type="text" id="sinistro-supervisao" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Responsável</label>
+                            <input type="text" id="sinistro-responsavel" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Matrícula</label>
+                            <input type="text" id="sinistro-matricula" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Data do Relatório</label>
+                            <input type="date" id="sinistro-data-final" class="w-full p-3 bg-slate-800 border-2 border-slate-700 rounded-xl focus:border-indigo-500 text-slate-100">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -299,6 +443,8 @@
         let simplesList = JSON.parse(localStorage.getItem('traffic_simples_list_draft') || '[]');
         let editingId = localStorage.getItem('traffic_editing_id') || null;
         let manageType = 'codigo'; // 'codigo' or 'local'
+        let envolvidosCount = 0;
+        let apoioCount = 0;
 
         // --- INITIALIZATION ---
         function init() {
@@ -319,11 +465,21 @@
                 // Add auto-save listeners
                 const inputs = [
                     'simples-codigo', 'simples-custom-codigo', 'simples-local', 'simples-custom-local',
-                    'especial-tipo', 'especial-descricao', 'especial-local'
+                    'especial-tipo', 'especial-descricao', 'especial-local',
+                    'sinistro-data', 'sinistro-hora', 'sinistro-numero', 'sinistro-origem',
+                    'sinistro-endereco', 'sinistro-caracteristica', 'sinistro-sexo',
+                    'sinistro-socorro', 'sinistro-socorro-prefixo', 'sinistro-socorro-responsavel',
+                    'sinistro-resumo', 'sinistro-agentes-select', 'sinistro-agentes-custom',
+                    'sinistro-vtr', 'sinistro-supervisao', 'sinistro-responsavel',
+                    'sinistro-matricula', 'sinistro-data-final'
                 ];
                 inputs.forEach(id => {
-                    document.getElementById(id).addEventListener('input', saveDraft);
+                    const el = document.getElementById(id);
+                    if (el) el.addEventListener('input', saveDraft);
                 });
+
+                document.getElementById('especial-tipo').addEventListener('change', toggleEspecialFields);
+                toggleEspecialFields();
 
             } catch (error) {
                 console.error('Initialization error:', error);
@@ -339,6 +495,43 @@
                 especialTipo: document.getElementById('especial-tipo').value,
                 especialDescricao: document.getElementById('especial-descricao').value,
                 especialLocal: document.getElementById('especial-local').value,
+                sinistro: {
+                    data: document.getElementById('sinistro-data').value,
+                    hora: document.getElementById('sinistro-hora').value,
+                    numero: document.getElementById('sinistro-numero').value,
+                    origem: document.getElementById('sinistro-origem').value,
+                    endereco: document.getElementById('sinistro-endereco').value,
+                    caracteristica: document.getElementById('sinistro-caracteristica').value,
+                    sexo: document.getElementById('sinistro-sexo').value,
+                    socorro: document.getElementById('sinistro-socorro').value,
+                    socorroPrefixo: document.getElementById('sinistro-socorro-prefixo').value,
+                    socorroResponsavel: document.getElementById('sinistro-socorro-responsavel').value,
+                    resumo: document.getElementById('sinistro-resumo').value,
+                    agentesSelect: document.getElementById('sinistro-agentes-select').value,
+                    agentesCustom: document.getElementById('sinistro-agentes-custom').value,
+                    vtr: document.getElementById('sinistro-vtr').value,
+                    supervisao: document.getElementById('sinistro-supervisao').value,
+                    responsavel: document.getElementById('sinistro-responsavel').value,
+                    matricula: document.getElementById('sinistro-matricula').value,
+                    dataFinal: document.getElementById('sinistro-data-final').value,
+                    envolvidos: Array.from(document.getElementById('envolvidos-container').children).map(div => {
+                        const id = div.id.split('-')[1];
+                        return {
+                            tipo: document.getElementById(`envolvido-tipo-${id}`).value,
+                            custom: document.getElementById(`envolvido-custom-${id}`).value,
+                            placa: document.getElementById(`envolvido-placa-${id}`).value,
+                            cnh: document.getElementById(`envolvido-cnh-${id}`).value
+                        };
+                    }),
+                    apoio: Array.from(document.getElementById('apoio-container').children).map(div => {
+                        const id = div.id.split('-')[1];
+                        return {
+                            tipo: document.getElementById(`apoio-tipo-${id}`).value,
+                            prefixo: document.getElementById(`apoio-prefixo-${id}`).value,
+                            responsavel: document.getElementById(`apoio-responsavel-${id}`).value
+                        };
+                    })
+                },
                 activeTab: activeTab,
                 editingId: editingId
             };
@@ -361,10 +554,45 @@
                 toggleCustomLocal();
             }
             if (draft.simplesCustomLocal) document.getElementById('simples-custom-local').value = draft.simplesCustomLocal;
-            if (draft.especialTipo) document.getElementById('especial-tipo').value = draft.especialTipo;
+            if (draft.especialTipo) {
+                document.getElementById('especial-tipo').value = draft.especialTipo;
+                toggleEspecialFields();
+            }
             if (draft.especialDescricao) document.getElementById('especial-descricao').value = draft.especialDescricao;
             if (draft.especialLocal) document.getElementById('especial-local').value = draft.especialLocal;
             
+            if (draft.sinistro) {
+                document.getElementById('sinistro-data').value = draft.sinistro.data || '';
+                document.getElementById('sinistro-hora').value = draft.sinistro.hora || '';
+                document.getElementById('sinistro-numero').value = draft.sinistro.numero || '';
+                document.getElementById('sinistro-origem').value = draft.sinistro.origem || 'Fiscalização de rotina';
+                document.getElementById('sinistro-endereco').value = draft.sinistro.endereco || '';
+                document.getElementById('sinistro-caracteristica').value = draft.sinistro.caracteristica || 'Com vítima';
+                document.getElementById('sinistro-sexo').value = draft.sinistro.sexo || 'Masculino';
+                document.getElementById('sinistro-socorro').value = draft.sinistro.socorro || 'Sem Necessidade';
+                document.getElementById('sinistro-socorro-prefixo').value = draft.sinistro.socorroPrefixo || '';
+                document.getElementById('sinistro-socorro-responsavel').value = draft.sinistro.socorroResponsavel || '';
+                document.getElementById('sinistro-resumo').value = draft.sinistro.resumo || '';
+                document.getElementById('sinistro-agentes-select').value = draft.sinistro.agentesSelect || 'DET 08';
+                document.getElementById('sinistro-agentes-custom').value = draft.sinistro.agentesCustom || '';
+                document.getElementById('sinistro-vtr').value = draft.sinistro.vtr || '1390';
+                document.getElementById('sinistro-supervisao').value = draft.sinistro.supervisao || '';
+                document.getElementById('sinistro-responsavel').value = draft.sinistro.responsavel || '';
+                document.getElementById('sinistro-matricula').value = draft.sinistro.matricula || '';
+                document.getElementById('sinistro-data-final').value = draft.sinistro.dataFinal || '';
+
+                if (draft.sinistro.envolvidos) {
+                    document.getElementById('envolvidos-container').innerHTML = '';
+                    draft.sinistro.envolvidos.forEach(it => addEnvolvido(it));
+                }
+                if (draft.sinistro.apoio) {
+                    document.getElementById('apoio-container').innerHTML = '';
+                    draft.sinistro.apoio.forEach(it => addApoio(it));
+                }
+                toggleSocorroFields();
+                toggleCustomAgente();
+            }
+
             renderSimplesList();
 
             if (editingId) {
@@ -446,6 +674,138 @@
         function toggleCustomLocal() {
             const val = document.getElementById('simples-local').value;
             document.getElementById('simples-custom-local').classList.toggle('hidden', val !== 'Outros');
+        }
+
+        function addEnvolvido(data = null) {
+            envolvidosCount++;
+            const container = document.getElementById('envolvidos-container');
+            const div = document.createElement('div');
+            div.id = `envolvido-${envolvidosCount}`;
+            div.className = 'p-4 bg-slate-800/50 rounded-2xl border border-slate-700 space-y-3 relative';
+            
+            const id = envolvidosCount;
+            div.innerHTML = `
+                <button onclick="removeEnvolvido(${id})" class="absolute top-2 right-2 text-slate-500 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Envolvido</label>
+                    <select id="envolvido-tipo-${id}" onchange="toggleEnvolvidoFields(${id})" class="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm">
+                        <option value="Carro 🚗">Carro 🚗</option>
+                        <option value="Moto 🏍️">Moto 🏍️</option>
+                        <option value="Caminhão 🚛">Caminhão 🚛</option>
+                        <option value="Ônibus 🚌">Ônibus 🚌</option>
+                        <option value="Ciclomotor 🛵">Ciclomotor 🛵</option>
+                        <option value="Autopropelido 🛴">Autopropelido 🛴</option>
+                        <option value="Bicicleta 🚲">Bicicleta 🚲</option>
+                        <option value="Pedestre 🧍🏻">Pedestre 🧍🏻</option>
+                        <option value="Outros">Outros (Escrever manualmente)</option>
+                    </select>
+                </div>
+                <div id="envolvido-custom-container-${id}" class="hidden space-y-2">
+                    <input type="text" id="envolvido-custom-${id}" placeholder="Especifique..." class="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm">
+                </div>
+                <div id="envolvido-veiculo-fields-${id}" class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Placa</label>
+                        <input type="text" id="envolvido-placa-${id}" class="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm uppercase">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">CNH</label>
+                        <input type="text" id="envolvido-cnh-${id}" class="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm">
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+            if (data) {
+                document.getElementById(`envolvido-tipo-${id}`).value = data.tipo;
+                document.getElementById(`envolvido-custom-${id}`).value = data.custom || '';
+                document.getElementById(`envolvido-placa-${id}`).value = data.placa || '';
+                document.getElementById(`envolvido-cnh-${id}`).value = data.cnh || '';
+            }
+            toggleEnvolvidoFields(id);
+            lucide.createIcons();
+            saveDraft();
+        }
+
+        function removeEnvolvido(id) {
+            document.getElementById(`envolvido-${id}`).remove();
+            saveDraft();
+        }
+
+        function toggleEnvolvidoFields(id) {
+            const tipo = document.getElementById(`envolvido-tipo-${id}`).value;
+            const veiculos = ["Carro 🚗", "Moto 🏍️", "Caminhão 🚛", "Ônibus 🚌", "Ciclomotor 🛵"];
+            document.getElementById(`envolvido-veiculo-fields-${id}`).classList.toggle('hidden', !veiculos.includes(tipo));
+            document.getElementById(`envolvido-custom-container-${id}`).classList.toggle('hidden', tipo !== 'Outros');
+            saveDraft();
+        }
+
+        function addApoio(data = null) {
+            apoioCount++;
+            const container = document.getElementById('apoio-container');
+            const div = document.createElement('div');
+            div.id = `apoio-${apoioCount}`;
+            div.className = 'p-4 bg-slate-800/50 rounded-2xl border border-slate-700 space-y-3 relative';
+            
+            const id = apoioCount;
+            div.innerHTML = `
+                <button onclick="removeApoio(${id})" class="absolute top-2 right-2 text-slate-500 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Apoio</label>
+                    <select id="apoio-tipo-${id}" class="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm">
+                        <option value="PM">PM</option>
+                        <option value="GCM">GCM</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Prefixo VTR</label>
+                        <input type="text" id="apoio-prefixo-${id}" class="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Responsável</label>
+                        <input type="text" id="apoio-responsavel-${id}" class="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm">
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+            if (data) {
+                document.getElementById(`apoio-tipo-${id}`).value = data.tipo;
+                document.getElementById(`apoio-prefixo-${id}`).value = data.prefixo || '';
+                document.getElementById(`apoio-responsavel-${id}`).value = data.responsavel || '';
+            }
+            lucide.createIcons();
+            saveDraft();
+        }
+
+        function removeApoio(id) {
+            document.getElementById(`apoio-${id}`).remove();
+            saveDraft();
+        }
+
+        function toggleSocorroFields() {
+            const val = document.getElementById('sinistro-socorro').value;
+            document.getElementById('socorro-vtr-fields').classList.toggle('hidden', val !== 'SAMU' && val !== 'RESGATE');
+            saveDraft();
+        }
+
+        function toggleCustomAgente() {
+            const val = document.getElementById('sinistro-agentes-select').value;
+            document.getElementById('sinistro-agentes-custom').classList.toggle('hidden', val !== 'Outros');
+            saveDraft();
+        }
+
+        function toggleEspecialFields() {
+            const tipo = document.getElementById('especial-tipo').value;
+            const isSinistro = tipo === 'Sinistro de trânsito';
+            document.getElementById('sinistro-fields').classList.toggle('hidden', !isSinistro);
+            document.getElementById('generic-especial-fields').classList.toggle('hidden', isSinistro);
+            
+            if (isSinistro && document.getElementById('envolvidos-container').children.length === 0) {
+                addEnvolvido();
+                addEnvolvido();
+                addApoio();
+            }
+            saveDraft();
         }
 
         function showToast(message, type = 'success') {
@@ -655,9 +1015,35 @@
             document.getElementById('simples-local').value = '';
             document.getElementById('simples-custom-local').value = '';
             document.getElementById('simples-custom-local').classList.add('hidden');
-            document.getElementById('especial-tipo').value = 'Sinistro';
+            document.getElementById('especial-tipo').value = 'Sinistro de trânsito';
             document.getElementById('especial-descricao').value = '';
             document.getElementById('especial-local').value = '';
+            
+            // Clear Sinistro fields
+            const sinistroInputs = [
+                'sinistro-data', 'sinistro-hora', 'sinistro-numero', 'sinistro-endereco',
+                'sinistro-socorro-prefixo', 'sinistro-socorro-responsavel', 'sinistro-resumo',
+                'sinistro-agentes-custom', 'sinistro-supervisao', 'sinistro-responsavel',
+                'sinistro-matricula', 'sinistro-data-final'
+            ];
+            sinistroInputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.getElementById('sinistro-origem').value = 'Fiscalização de rotina';
+            document.getElementById('sinistro-caracteristica').value = 'Com vítima';
+            document.getElementById('sinistro-sexo').value = 'Masculino';
+            document.getElementById('sinistro-socorro').value = 'Sem Necessidade';
+            document.getElementById('sinistro-agentes-select').value = 'DET 08';
+            document.getElementById('sinistro-vtr').value = '1390';
+            
+            document.getElementById('envolvidos-container').innerHTML = '';
+            document.getElementById('apoio-container').innerHTML = '';
+            
+            toggleEspecialFields();
+            toggleSocorroFields();
+            toggleCustomAgente();
+
             document.getElementById('edit-indicator-simples').classList.add('hidden');
             document.getElementById('edit-indicator-especial').classList.add('hidden');
             renderSimplesList();
@@ -680,10 +1066,54 @@
                 data = { items: finalItems };
             } else {
                 const tipo = document.getElementById('especial-tipo').value;
-                const desc = document.getElementById('especial-descricao').value;
-                const loc = document.getElementById('especial-local').value;
-                if (!desc || !loc) return showToast('Preencha os campos.', 'error');
-                data = { tipo, descricao: desc, local: loc };
+                if (tipo === 'Sinistro de trânsito') {
+                    const sinistroData = {
+                        data: document.getElementById('sinistro-data').value,
+                        hora: document.getElementById('sinistro-hora').value,
+                        numero: document.getElementById('sinistro-numero').value,
+                        origem: document.getElementById('sinistro-origem').value,
+                        endereco: document.getElementById('sinistro-endereco').value,
+                        caracteristica: document.getElementById('sinistro-caracteristica').value,
+                        sexo: document.getElementById('sinistro-sexo').value,
+                        socorro: document.getElementById('sinistro-socorro').value,
+                        socorroPrefixo: document.getElementById('sinistro-socorro-prefixo').value,
+                        socorroResponsavel: document.getElementById('sinistro-socorro-responsavel').value,
+                        resumo: document.getElementById('sinistro-resumo').value,
+                        agentesSelect: document.getElementById('sinistro-agentes-select').value,
+                        agentesCustom: document.getElementById('sinistro-agentes-custom').value,
+                        vtr: document.getElementById('sinistro-vtr').value,
+                        supervisao: document.getElementById('sinistro-supervisao').value,
+                        responsavel: document.getElementById('sinistro-responsavel').value,
+                        matricula: document.getElementById('sinistro-matricula').value,
+                        dataFinal: document.getElementById('sinistro-data-final').value,
+                        envolvidos: Array.from(document.getElementById('envolvidos-container').children).map(div => {
+                            const id = div.id.split('-')[1];
+                            return {
+                                tipo: document.getElementById(`envolvido-tipo-${id}`).value,
+                                custom: document.getElementById(`envolvido-custom-${id}`).value,
+                                placa: document.getElementById(`envolvido-placa-${id}`).value,
+                                cnh: document.getElementById(`envolvido-cnh-${id}`).value
+                            };
+                        }),
+                        apoio: Array.from(document.getElementById('apoio-container').children).map(div => {
+                            const id = div.id.split('-')[1];
+                            return {
+                                tipo: document.getElementById(`apoio-tipo-${id}`).value,
+                                prefixo: document.getElementById(`apoio-prefixo-${id}`).value,
+                                responsavel: document.getElementById(`apoio-responsavel-${id}`).value
+                            };
+                        })
+                    };
+                    if (!sinistroData.data || !sinistroData.hora || !sinistroData.endereco) {
+                        return showToast('Preencha os campos obrigatórios (Data, Hora, Endereço).', 'error');
+                    }
+                    data = { tipo, ...sinistroData };
+                } else {
+                    const desc = document.getElementById('especial-descricao').value;
+                    const loc = document.getElementById('especial-local').value;
+                    if (!desc || !loc) return showToast('Preencha os campos.', 'error');
+                    data = { tipo, descricao: desc, local: loc };
+                }
             }
 
             const report = {
@@ -789,6 +1219,25 @@
                 grp.especial.sort((a,b) => b.timestamp - a.timestamp).forEach(r => {
                     const card = document.createElement('div');
                     card.className = 'glass-card rounded-3xl p-5 shadow-2xl space-y-3 border-l-4 border-l-amber-500/50';
+                    
+                    let contentHtml = '';
+                    if (r.data.tipo === 'Sinistro de trânsito') {
+                        contentHtml = `
+                            <div class="space-y-1">
+                                <p class="font-bold text-slate-200">N° ${r.data.numero || 'S/N'}</p>
+                                <p class="text-sm text-slate-400 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${r.data.endereco}</p>
+                                <p class="text-[10px] text-slate-500 uppercase font-bold">${r.data.data} às ${r.data.hora}</p>
+                            </div>
+                        `;
+                    } else {
+                        contentHtml = `
+                            <div class="space-y-1">
+                                <p class="font-bold text-slate-200">${r.data.descricao}</p>
+                                <p class="text-sm text-slate-400 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${r.data.local}</p>
+                            </div>
+                        `;
+                    }
+
                     card.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div class="flex items-center gap-2">
@@ -799,10 +1248,7 @@
                                 <button onclick="openConfirm('${r.id}')" class="p-2 text-slate-500 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </div>
                         </div>
-                        <div class="space-y-1">
-                            <p class="font-bold text-slate-200">${r.data.descricao}</p>
-                            <p class="text-sm text-slate-400 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${r.data.local}</p>
-                        </div>
+                        ${contentHtml}
                         <button onclick="sendWhatsAppSingle('${r.id}')" class="w-full bg-green-600/10 text-green-400 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-green-600/20 transition-colors border border-green-600/20">
                             <i data-lucide="send" class="w-3 h-3"></i> Reenviar WhatsApp
                         </button>
@@ -828,8 +1274,41 @@
                 document.getElementById('edit-indicator-simples').classList.remove('hidden');
             } else {
                 document.getElementById('especial-tipo').value = r.data.tipo;
-                document.getElementById('especial-descricao').value = r.data.descricao;
-                document.getElementById('especial-local').value = r.data.local;
+                if (r.data.tipo === 'Sinistro de trânsito') {
+                    const d = r.data;
+                    document.getElementById('sinistro-data').value = d.data || '';
+                    document.getElementById('sinistro-hora').value = d.hora || '';
+                    document.getElementById('sinistro-numero').value = d.numero || '';
+                    document.getElementById('sinistro-origem').value = d.origem || 'Fiscalização de rotina';
+                    document.getElementById('sinistro-endereco').value = d.endereco || '';
+                    document.getElementById('sinistro-caracteristica').value = d.caracteristica || 'Com vítima';
+                    document.getElementById('sinistro-sexo').value = d.sexo || 'Masculino';
+                    document.getElementById('sinistro-socorro').value = d.socorro || 'Sem Necessidade';
+                    document.getElementById('sinistro-socorro-prefixo').value = d.socorroPrefixo || '';
+                    document.getElementById('sinistro-socorro-responsavel').value = d.socorroResponsavel || '';
+                    document.getElementById('sinistro-resumo').value = d.resumo || '';
+                    document.getElementById('sinistro-agentes-select').value = d.agentesSelect || 'DET 08';
+                    document.getElementById('sinistro-agentes-custom').value = d.agentesCustom || '';
+                    document.getElementById('sinistro-vtr').value = d.vtr || '1390';
+                    document.getElementById('sinistro-supervisao').value = d.supervisao || '';
+                    document.getElementById('sinistro-responsavel').value = d.responsavel || '';
+                    document.getElementById('sinistro-matricula').value = d.matricula || '';
+                    document.getElementById('sinistro-data-final').value = d.dataFinal || '';
+
+                    document.getElementById('envolvidos-container').innerHTML = '';
+                    if (d.envolvidos) d.envolvidos.forEach(env => addEnvolvido(env));
+
+                    document.getElementById('apoio-container').innerHTML = '';
+                    if (d.apoio) d.apoio.forEach(ap => addApoio(ap));
+
+                    toggleEspecialFields();
+                    toggleSocorroFields();
+                    toggleCustomAgente();
+                } else {
+                    document.getElementById('especial-descricao').value = r.data.descricao;
+                    document.getElementById('especial-local').value = r.data.local;
+                    toggleEspecialFields();
+                }
                 document.getElementById('edit-indicator-especial').classList.remove('hidden');
             }
         }
@@ -852,10 +1331,50 @@
                 message = formatSimplesMessage(finalItems);
             } else {
                 const tipo = document.getElementById('especial-tipo').value;
-                const desc = document.getElementById('especial-descricao').value;
-                const loc = document.getElementById('especial-local').value;
-                if (!desc || !loc) return showToast('Preencha os campos.', 'error');
-                message = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${agentName}\n\n*OCORRÊNCIA ESPECIAL*\n\n*Tipo:* ${tipo}\n*Descrição:* ${desc}\n*Local:* ${loc}`;
+                if (tipo === 'Sinistro de trânsito') {
+                    message = formatSinistroMessage({
+                        data: document.getElementById('sinistro-data').value,
+                        hora: document.getElementById('sinistro-hora').value,
+                        numero: document.getElementById('sinistro-numero').value,
+                        origem: document.getElementById('sinistro-origem').value,
+                        endereco: document.getElementById('sinistro-endereco').value,
+                        caracteristica: document.getElementById('sinistro-caracteristica').value,
+                        sexo: document.getElementById('sinistro-sexo').value,
+                        socorro: document.getElementById('sinistro-socorro').value,
+                        socorroPrefixo: document.getElementById('sinistro-socorro-prefixo').value,
+                        socorroResponsavel: document.getElementById('sinistro-socorro-responsavel').value,
+                        resumo: document.getElementById('sinistro-resumo').value,
+                        agentesSelect: document.getElementById('sinistro-agentes-select').value,
+                        agentesCustom: document.getElementById('sinistro-agentes-custom').value,
+                        vtr: document.getElementById('sinistro-vtr').value,
+                        supervisao: document.getElementById('sinistro-supervisao').value,
+                        responsavel: document.getElementById('sinistro-responsavel').value,
+                        matricula: document.getElementById('sinistro-matricula').value,
+                        dataFinal: document.getElementById('sinistro-data-final').value,
+                        envolvidos: Array.from(document.getElementById('envolvidos-container').children).map(div => {
+                            const id = div.id.split('-')[1];
+                            return {
+                                tipo: document.getElementById(`envolvido-tipo-${id}`).value,
+                                custom: document.getElementById(`envolvido-custom-${id}`).value,
+                                placa: document.getElementById(`envolvido-placa-${id}`).value,
+                                cnh: document.getElementById(`envolvido-cnh-${id}`).value
+                            };
+                        }),
+                        apoio: Array.from(document.getElementById('apoio-container').children).map(div => {
+                            const id = div.id.split('-')[1];
+                            return {
+                                tipo: document.getElementById(`apoio-tipo-${id}`).value,
+                                prefixo: document.getElementById(`apoio-prefixo-${id}`).value,
+                                responsavel: document.getElementById(`apoio-responsavel-${id}`).value
+                            };
+                        })
+                    });
+                } else {
+                    const desc = document.getElementById('especial-descricao').value;
+                    const loc = document.getElementById('especial-local').value;
+                    if (!desc || !loc) return showToast('Preencha os campos.', 'error');
+                    message = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${agentName}\n\n*OCORRÊNCIA ESPECIAL*\n\n*Tipo:* ${tipo}\n*Descrição:* ${desc}\n*Local:* ${loc}`;
+                }
             }
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
@@ -865,9 +1384,50 @@
             if (!r) return;
             let message = '';
             const reportAgent = r.agent || agentName;
-            if (r.type === 'simples') message = formatSimplesMessage(r.data.items, reportAgent);
-            else message = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${reportAgent}\n\n*OCORRÊNCIA ESPECIAL*\n\n*Tipo:* ${r.data.tipo}\n*Descrição:* ${r.data.descricao}\n*Local:* ${r.data.local}`;
+            if (r.type === 'simples') {
+                message = formatSimplesMessage(r.data.items, reportAgent);
+            } else {
+                if (r.data.tipo === 'Sinistro de trânsito') {
+                    message = formatSinistroMessage(r.data);
+                } else {
+                    message = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${reportAgent}\n\n*OCORRÊNCIA ESPECIAL*\n\n*Tipo:* ${r.data.tipo}\n*Descrição:* ${r.data.descricao}\n*Local:* ${r.data.local}`;
+                }
+            }
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function formatSinistroMessage(d) {
+            let message = `*RELATÓRIO DE SINISTRO DE TRÂNSITO*\n\n`;
+            message += `*Data:* ${d.data}\n*Hora:* ${d.hora}\n*N° Ocorrência:* ${d.numero}\n*Origem:* ${d.origem}\n*Endereço:* ${d.endereco}\n`;
+            message += `*Característica:* ${d.caracteristica}\n*Sexo:* ${d.sexo}\n\n`;
+            
+            message += `*ENVOLVIDOS:*\n`;
+            d.envolvidos.forEach((env, i) => {
+                const tipoFinal = env.tipo === 'Outros' ? env.custom : env.tipo;
+                message += `${i+1}. ${tipoFinal}`;
+                if (env.placa) message += ` | Placa: ${env.placa}`;
+                if (env.cnh) message += ` | CNH: ${env.cnh}`;
+                message += `\n`;
+            });
+
+            message += `\n*SOCORRO MÉDICO:* ${d.socorro}\n`;
+            if (d.socorro === 'SAMU' || d.socorro === 'RESGATE') {
+                message += `*Prefixo VTR:* ${d.socorroPrefixo}\n*Responsável:* ${d.socorroResponsavel}\n`;
+            }
+
+            if (d.apoio && d.apoio.length > 0) {
+                message += `\n*APOIO POLICIAL:*\n`;
+                d.apoio.forEach((ap, i) => {
+                    message += `${i+1}. ${ap.tipo} | VTR: ${ap.prefixo} | Resp: ${ap.responsavel}\n`;
+                });
+            }
+
+            message += `\n*RESUMO DOS FATOS:* ${d.resumo}\n\n`;
+            
+            const agenteFinal = d.agentesSelect === 'Outros' ? d.agentesCustom : d.agentesSelect;
+            message += `*Agentes:* ${agenteFinal}\n*VTR:* ${d.vtr}\n*Supervisão:* ${d.supervisao}\n`;
+            message += `*Responsável pelo Relatório:* ${d.responsavel}\n*Matrícula:* ${d.matricula}\n*Data:* ${d.dataFinal}`;
+            return message;
         }
 
         function sendWhatsAppBulk(date) {
