@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "serve . -p 3000",
     "start": "serve . -p 3000",
-    "build": "echo 'No build needed'"
+    "build": "echo 'No build needed'",
+    "lint": "echo 'No linting needed'"
   },
   "devDependencies": {
     "serve": "^14.2.4"

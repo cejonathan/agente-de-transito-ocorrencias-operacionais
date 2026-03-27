@@ -206,8 +206,8 @@
             </div>
 
             <div class="flex gap-3">
-                <button onclick="handleSaveReport()" class="w-full bg-gradient-to-r from-slate-100 to-slate-300 text-slate-950 py-4 rounded-2xl font-black uppercase shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i data-lucide="save" class="w-5 h-5"></i> Salvar Registro
+                <button onclick="handleSaveReport()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="save" class="w-5 h-5"></i> Salvar
                 </button>
             </div>
         </div>
@@ -341,7 +341,7 @@
                         <textarea id="sinistro-resumo" rows="3" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900" placeholder="Descreva os detalhes do sinistro..."></textarea>
                     </div>
 
-                    <div class="space-y-3">
+                    <div class="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
                         <div class="flex items-center justify-between">
                             <label class="text-xs font-bold text-slate-500 uppercase">Agentes Envolvidos</label>
                             <button onclick="addAgenteSinistro()" class="text-indigo-600 hover:text-indigo-500 transition-colors flex items-center gap-1 text-[10px] font-bold uppercase">
@@ -351,7 +351,7 @@
                         <div id="sinistro-agentes-container" class="space-y-2"></div>
                     </div>
 
-                    <div class="space-y-3">
+                    <div class="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
                         <div class="flex items-center justify-between">
                             <label class="text-xs font-bold text-slate-500 uppercase">VTRs</label>
                             <button onclick="addVtrSinistro()" class="text-indigo-600 hover:text-indigo-500 transition-colors flex items-center gap-1 text-[10px] font-bold uppercase">
@@ -1165,13 +1165,15 @@
             document.getElementById('sinistro-fields').classList.toggle('hidden', !isSinistro);
             document.getElementById('generic-especial-fields').classList.toggle('hidden', isSinistro || !tipo);
             
-            if (isSinistro && document.getElementById('envolvidos-container').children.length === 0) {
-                addEnvolvido();
-                addEnvolvido();
-                addApoio();
-                addSocorro();
-                addAgenteSinistro();
-                addVtrSinistro();
+            if (isSinistro) {
+                if (document.getElementById('envolvidos-container').children.length === 0) {
+                    addEnvolvido();
+                    addEnvolvido();
+                }
+                if (document.getElementById('apoio-container').children.length === 0) addApoio();
+                if (document.getElementById('socorro-container').children.length === 0) addSocorro();
+                if (document.getElementById('sinistro-agentes-container').children.length === 0) addAgenteSinistro();
+                if (document.getElementById('sinistro-vtrs-container').children.length === 0) addVtrSinistro();
             }
             saveDraft();
         }
@@ -1423,116 +1425,123 @@
         }
 
         function handleSaveReport() {
-            let data = {};
-            if (activeTab === 'simples') {
-                const codigoSelect = document.getElementById('simples-codigo').value;
-                const customCodigo = document.getElementById('simples-custom-codigo').value;
-                const localSelect = document.getElementById('simples-local').value;
-                const customLocal = document.getElementById('simples-custom-local').value;
-                const finalCodigo = codigoSelect === 'Outros' ? customCodigo : codigoSelect;
-                const finalLocal = localSelect === 'Outros' ? customLocal : localSelect;
+            try {
+                let data = {};
+                if (activeTab === 'simples') {
+                    const codigoSelect = document.getElementById('simples-codigo').value;
+                    const customCodigo = document.getElementById('simples-custom-codigo').value;
+                    const localSelect = document.getElementById('simples-local').value;
+                    const customLocal = document.getElementById('simples-custom-local').value;
+                    const finalCodigo = codigoSelect === 'Outros' ? customCodigo : codigoSelect;
+                    const finalLocal = localSelect === 'Outros' ? customLocal : localSelect;
 
-                const finalItems = [...simplesList];
-                if (finalCodigo && finalLocal) finalItems.push({ codigo: finalCodigo, local: finalLocal });
-                if (finalItems.length === 0) return showToast('Adicione ocorrências.', 'error');
-                
-                data = { items: finalItems };
-            } else {
-                const tipo = document.getElementById('especial-tipo').value;
-                if (tipo === 'Sinistro de trânsito') {
-                    const sinistroData = {
-                        data: document.getElementById('sinistro-data').value,
-                        hora: document.getElementById('sinistro-hora').value,
-                        numero: document.getElementById('sinistro-numero').value,
-                        origem: document.getElementById('sinistro-origem').value,
-                        endereco: document.getElementById('sinistro-endereco').value,
-                        caracteristica: document.getElementById('sinistro-caracteristica').value,
-                        resumo: document.getElementById('sinistro-resumo').value,
-                        agentes: Array.from(document.getElementById('sinistro-agentes-container').children).map(div => {
-                            const id = div.id.split('-').pop();
-                            const select = document.getElementById(`sinistro-agente-select-${id}`).value;
-                            return select === 'Outros' ? document.getElementById(`sinistro-agente-custom-${id}`).value : select;
-                        }).filter(v => v),
-                        vtrs: Array.from(document.getElementById('sinistro-vtrs-container').children).map(div => {
-                            const id = div.id.split('-').pop();
-                            const select = document.getElementById(`sinistro-vtr-select-${id}`).value;
-                            return select === 'Outros' ? document.getElementById(`sinistro-vtr-custom-${id}`).value : select;
-                        }).filter(v => v),
-                        photos: sinistroPhotos,
-                        supervisao: document.getElementById('sinistro-supervisao').value,
-                        responsavel: document.getElementById('sinistro-responsavel-select').value === 'Outros' ? 
-                                     document.getElementById('sinistro-responsavel-custom').value : 
-                                     document.getElementById('sinistro-responsavel-select').value,
-                        matricula: document.getElementById('sinistro-matricula').value,
-                        dataFinal: document.getElementById('sinistro-data-final').value,
-                        envolvidos: Array.from(document.getElementById('envolvidos-container').children).map(div => {
-                            const id = div.id.split('-')[1];
-                            return {
-                                tipo: document.getElementById(`envolvido-tipo-${id}`).value,
-                                custom: document.getElementById(`envolvido-custom-${id}`).value,
-                                placa: document.getElementById(`envolvido-placa-${id}`).value,
-                                cnh: document.getElementById(`envolvido-cnh-${id}`).value
-                            };
-                        }),
-                        apoio: Array.from(document.getElementById('apoio-container').children).map(div => {
-                            const id = div.id.split('-')[1];
-                            return {
-                                tipo: document.getElementById(`apoio-tipo-${id}`).value,
-                                prefixo: document.getElementById(`apoio-prefixo-${id}`).value,
-                                responsavel: document.getElementById(`apoio-responsavel-${id}`).value
-                            };
-                        }),
-                        socorro: Array.from(document.getElementById('socorro-container').children).map(div => {
-                            const id = div.id.split('-')[1];
-                            return {
-                                tipo: document.getElementById(`socorro-tipo-${id}`).value,
-                                prefixo: document.getElementById(`socorro-prefixo-${id}`).value,
-                                responsavel: document.getElementById(`socorro-responsavel-${id}`).value
-                            };
-                        }),
-                        vitimas: Array.from(document.getElementById('vitimas-container').children).map(div => {
-                            const id = div.id.split('-')[1];
-                            return {
-                                nome: document.getElementById(`vitima-nome-${id}`).value,
-                                sexo: document.getElementById(`vitima-sexo-${id}`).value,
-                                estado: document.getElementById(`vitima-estado-${id}`).value,
-                                descricao: document.getElementById(`vitima-descricao-${id}`).value
-                            };
-                        })
-                    };
-                    if (!sinistroData.data || !sinistroData.hora || !sinistroData.endereco) {
-                        return showToast('Preencha os campos obrigatórios (Data, Hora, Endereço).', 'error');
-                    }
-                    data = { tipo, ...sinistroData };
+                    const finalItems = [...simplesList];
+                    if (finalCodigo && finalLocal) finalItems.push({ codigo: finalCodigo, local: finalLocal });
+                    if (finalItems.length === 0) return showToast('Adicione ocorrências.', 'error');
+                    
+                    data = { items: finalItems };
                 } else {
-                    const desc = document.getElementById('especial-descricao').value;
-                    const loc = document.getElementById('especial-local').value;
-                    if (!desc || !loc) return showToast('Preencha os campos.', 'error');
-                    data = { tipo, descricao: desc, local: loc };
+                    const tipo = document.getElementById('especial-tipo').value;
+                    if (!tipo) return showToast('Selecione o tipo de ocorrência.', 'error');
+
+                    if (tipo === 'Sinistro de trânsito') {
+                        const sinistroData = {
+                            data: document.getElementById('sinistro-data').value,
+                            hora: document.getElementById('sinistro-hora').value,
+                            numero: document.getElementById('sinistro-numero').value,
+                            origem: document.getElementById('sinistro-origem').value,
+                            endereco: document.getElementById('sinistro-endereco').value,
+                            caracteristica: document.getElementById('sinistro-caracteristica').value,
+                            resumo: document.getElementById('sinistro-resumo').value,
+                            agentes: Array.from(document.getElementById('sinistro-agentes-container').children).map(div => {
+                                const id = div.id.split('-').pop();
+                                const select = document.getElementById(`sinistro-agente-select-${id}`).value;
+                                return select === 'Outros' ? document.getElementById(`sinistro-agente-custom-${id}`).value : select;
+                            }).filter(v => v),
+                            vtrs: Array.from(document.getElementById('sinistro-vtrs-container').children).map(div => {
+                                const id = div.id.split('-').pop();
+                                const select = document.getElementById(`sinistro-vtr-select-${id}`).value;
+                                return select === 'Outros' ? document.getElementById(`sinistro-vtr-custom-${id}`).value : select;
+                            }).filter(v => v),
+                            photos: sinistroPhotos,
+                            supervisao: document.getElementById('sinistro-supervisao').value,
+                            responsavel: document.getElementById('sinistro-responsavel-select').value === 'Outros' ? 
+                                         document.getElementById('sinistro-responsavel-custom').value : 
+                                         document.getElementById('sinistro-responsavel-select').value,
+                            matricula: document.getElementById('sinistro-matricula').value,
+                            dataFinal: document.getElementById('sinistro-data-final').value,
+                            envolvidos: Array.from(document.getElementById('envolvidos-container').children).map(div => {
+                                const id = div.id.split('-')[1];
+                                return {
+                                    tipo: document.getElementById(`envolvido-tipo-${id}`).value,
+                                    custom: document.getElementById(`envolvido-custom-${id}`).value,
+                                    placa: document.getElementById(`envolvido-placa-${id}`).value,
+                                    cnh: document.getElementById(`envolvido-cnh-${id}`).value
+                                };
+                            }),
+                            apoio: Array.from(document.getElementById('apoio-container').children).map(div => {
+                                const id = div.id.split('-')[1];
+                                return {
+                                    tipo: document.getElementById(`apoio-tipo-${id}`).value,
+                                    prefixo: document.getElementById(`apoio-prefixo-${id}`).value,
+                                    responsavel: document.getElementById(`apoio-responsavel-${id}`).value
+                                };
+                            }),
+                            socorro: Array.from(document.getElementById('socorro-container').children).map(div => {
+                                const id = div.id.split('-')[1];
+                                return {
+                                    tipo: document.getElementById(`socorro-tipo-${id}`).value,
+                                    prefixo: document.getElementById(`socorro-prefixo-${id}`).value,
+                                    responsavel: document.getElementById(`socorro-responsavel-${id}`).value
+                                };
+                            }),
+                            vitimas: Array.from(document.getElementById('vitimas-container').children).map(div => {
+                                const id = div.id.split('-')[1];
+                                return {
+                                    nome: document.getElementById(`vitima-nome-${id}`).value,
+                                    sexo: document.getElementById(`vitima-sexo-${id}`).value,
+                                    estado: document.getElementById(`vitima-estado-${id}`).value,
+                                    descricao: document.getElementById(`vitima-descricao-${id}`).value
+                                };
+                            })
+                        };
+                        if (!sinistroData.data || !sinistroData.hora || !sinistroData.endereco) {
+                            return showToast('Preencha os campos obrigatórios (Data, Hora, Endereço).', 'error');
+                        }
+                        data = { tipo, ...sinistroData };
+                    } else {
+                        const desc = document.getElementById('especial-descricao').value;
+                        const loc = document.getElementById('especial-local').value;
+                        if (!desc || !loc) return showToast('Preencha os campos.', 'error');
+                        data = { tipo, descricao: desc, local: loc };
+                    }
                 }
+
+                const report = {
+                    id: editingId || Math.random().toString(36).substring(2),
+                    type: activeTab,
+                    data: data,
+                    agent: agentName,
+                    timestamp: Date.now()
+                };
+
+                if (editingId) {
+                    reports = reports.map(r => r.id === editingId ? report : r);
+                } else {
+                    reports.unshift(report);
+                }
+
+                localStorage.setItem('traffic_reports', JSON.stringify(reports));
+                localStorage.removeItem('traffic_form_draft');
+                localStorage.removeItem('traffic_simples_list_draft');
+                localStorage.removeItem('traffic_editing_id');
+                showToast(editingId ? 'Atualizado!' : 'Salvo localmente!');
+                updateTodayCounter();
+                handleClear();
+            } catch (error) {
+                console.error('Save error:', error);
+                showToast('Erro ao salvar. Verifique se há espaço no armazenamento.', 'error');
             }
-
-            const report = {
-                id: editingId || Math.random().toString(36).substring(2),
-                type: activeTab,
-                data: data,
-                agent: agentName,
-                timestamp: Date.now()
-            };
-
-            if (editingId) {
-                reports = reports.map(r => r.id === editingId ? report : r);
-            } else {
-                reports.unshift(report);
-            }
-
-            localStorage.setItem('traffic_reports', JSON.stringify(reports));
-            localStorage.removeItem('traffic_form_draft');
-            localStorage.removeItem('traffic_simples_list_draft');
-            localStorage.removeItem('traffic_editing_id');
-            showToast(editingId ? 'Atualizado!' : 'Salvo localmente!');
-            updateTodayCounter();
-            handleClear();
         }
 
         // --- HISTORY ---
