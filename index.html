@@ -287,23 +287,13 @@
                         <input type="text" id="sinistro-endereco" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900" placeholder="Rua, Número, Bairro...">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500 uppercase">Característica do sinistro</label>
-                            <select id="sinistro-caracteristica" onchange="toggleVitimaFields()" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
-                                <option value="">Selecionar...</option>
-                                <option value="Com vítima">Com vítima</option>
-                                <option value="Sem vítima">Sem vítima</option>
-                            </select>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500 uppercase">Sexo</label>
-                            <select id="sinistro-sexo" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
-                                <option value="">Selecionar...</option>
-                                <option value="Masculino">Masculino</option>
-                                <option value="Feminino">Feminino</option>
-                            </select>
-                        </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase">Característica do sinistro</label>
+                        <select id="sinistro-caracteristica" onchange="toggleVitimaFields()" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
+                            <option value="">Selecionar...</option>
+                            <option value="Com vítima">Com vítima</option>
+                            <option value="Sem vítima">Sem vítima</option>
+                        </select>
                     </div>
 
                     <div id="vitimas-section" class="hidden space-y-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">
@@ -351,71 +341,64 @@
                         <textarea id="sinistro-resumo" rows="3" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900" placeholder="Descreva os detalhes do sinistro..."></textarea>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-2">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
                             <label class="text-xs font-bold text-slate-500 uppercase">Agentes Envolvidos</label>
-                            <div class="flex flex-col gap-2">
-                                <select id="sinistro-agentes-select" onchange="toggleCustomAgente()" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
-                                    <option value="">Selecionar...</option>
-                                    <option value="DET 08">DET 08</option>
-                                    <option value="DET 10">DET 10</option>
-                                    <option value="DET 12">DET 12</option>
-                                    <option value="DET 20">DET 20</option>
-                                    <option value="DET 22">DET 22</option>
-                                    <option value="DET 35">DET 35</option>
-                                    <option value="DET 46">DET 46</option>
-                                    <option value="DET 47">DET 47</option>
-                                    <option value="DET 54">DET 54</option>
-                                    <option value="DET 59">DET 59</option>
-                                    <option value="DET 61">DET 61</option>
-                                    <option value="DET 65">DET 65</option>
-                                    <option value="DET 86">DET 86</option>
-                                    <option value="Outros">Outros (Escrever manualmente)</option>
-                                </select>
-                                <input type="text" id="sinistro-agentes-custom" class="hidden w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900" placeholder="Nomes dos agentes...">
-                            </div>
+                            <button onclick="addAgenteSinistro()" class="text-indigo-600 hover:text-indigo-500 transition-colors flex items-center gap-1 text-[10px] font-bold uppercase">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Adicionar Agente
+                            </button>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500 uppercase">VTR</label>
-                            <select id="sinistro-vtr" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
-                                <option value="">Selecionar...</option>
-                                <option value="1390">1390</option>
-                                <option value="1393">1393</option>
-                                <option value="1395">1395</option>
-                            </select>
-                        </div>
+                        <div id="sinistro-agentes-container" class="space-y-2"></div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-slate-500 uppercase">VTRs</label>
+                            <button onclick="addVtrSinistro()" class="text-indigo-600 hover:text-indigo-500 transition-colors flex items-center gap-1 text-[10px] font-bold uppercase">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Adicionar VTR
+                            </button>
+                        </div>
+                        <div id="sinistro-vtrs-container" class="space-y-2"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 items-start">
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-500 uppercase">Supervisão</label>
                             <input type="text" id="sinistro-supervisao" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500 uppercase">Responsável pelo Relatório</label>
+                            <label class="text-xs font-bold text-slate-500 uppercase leading-tight">Responsável pelo Relatório</label>
                             <input type="text" id="sinistro-responsavel" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-4 items-start">
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-500 uppercase">Matrícula</label>
                             <input type="text" id="sinistro-matricula" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500 uppercase">Data do Relatório</label>
+                            <label class="text-xs font-bold text-slate-500 uppercase leading-tight">Data do Relatório</label>
                             <input type="date" id="sinistro-data-final" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
                         </div>
+                    </div>
+
+                    <div class="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-slate-500 uppercase">Fotos do Sinistro</label>
+                            <label class="cursor-pointer text-indigo-600 hover:text-indigo-500 transition-colors flex items-center gap-1 text-[10px] font-bold uppercase">
+                                <i data-lucide="camera" class="w-3 h-3"></i> Tirar/Anexar Foto
+                                <input type="file" accept="image/*" capture="environment" multiple class="hidden" onchange="handlePhotoUpload(event)">
+                            </label>
+                        </div>
+                        <div id="sinistro-photos-container" class="grid grid-cols-3 gap-2"></div>
                     </div>
                 </div>
             </div>
 
             <div class="flex flex-wrap gap-3">
-                <button onclick="handleSaveReport()" class="flex-1 min-w-[120px] bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
+                <button onclick="handleSaveReport()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
                     <i data-lucide="save" class="w-5 h-5"></i> Salvar
-                </button>
-                <button onclick="handleSendWhatsApp()" class="flex-1 min-w-[120px] bg-gradient-to-r from-green-600 to-emerald-700 text-white py-4 rounded-2xl font-black uppercase shadow-xl shadow-green-900/40 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i data-lucide="send" class="w-5 h-5"></i> WhatsApp
                 </button>
                 <button onclick="handleClear()" class="w-full bg-slate-100 text-slate-500 py-3 rounded-xl font-bold uppercase text-xs active:scale-95 transition-all flex items-center justify-center gap-2 border border-slate-200">
                     <i data-lucide="eraser" class="w-4 h-4"></i> Limpar Formulário
@@ -899,15 +882,25 @@
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Nome da Vítima</label>
                     <input type="text" id="vitima-nome-${id}" placeholder="Nome completo..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
                 </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Estado da Vítima</label>
-                    <select id="vitima-estado-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
-                        <option value="">Selecionar...</option>
-                        <option value="Leve">Leve</option>
-                        <option value="Grave">Grave</option>
-                        <option value="Gravíssimo">Gravíssimo</option>
-                        <option value="Óbito">Óbito</option>
-                    </select>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Sexo</label>
+                        <select id="vitima-sexo-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                            <option value="">Selecionar...</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Feminino">Feminino</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Estado da Vítima</label>
+                        <select id="vitima-estado-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                            <option value="">Selecionar...</option>
+                            <option value="Leve">Leve</option>
+                            <option value="Grave">Grave</option>
+                            <option value="Gravíssimo">Gravíssimo</option>
+                            <option value="Óbito">Óbito</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Descrição do Estado</label>
@@ -917,10 +910,148 @@
             container.appendChild(div);
             if (data) {
                 document.getElementById(`vitima-nome-${id}`).value = data.nome || '';
-                document.getElementById(`vitima-estado-${id}`).value = data.estado || 'Leve';
+                document.getElementById(`vitima-sexo-${id}`).value = data.sexo || '';
+                document.getElementById(`vitima-estado-${id}`).value = data.estado || '';
                 document.getElementById(`vitima-descricao-${id}`).value = data.descricao || '';
             }
             lucide.createIcons();
+            saveDraft();
+        }
+
+        function addAgenteSinistro(data = null) {
+            sinistroAgentesCount++;
+            const container = document.getElementById('sinistro-agentes-container');
+            const div = document.createElement('div');
+            const id = sinistroAgentesCount;
+            div.id = `sinistro-agente-row-${id}`;
+            div.className = 'flex gap-2 items-center';
+            
+            let options = DET_CODES.map(code => `<option value="DET ${code}">DET ${code}</option>`).join('');
+            
+            div.innerHTML = `
+                <div class="flex-1 flex flex-col gap-1">
+                    <select id="sinistro-agente-select-${id}" onchange="toggleSinistroAgenteCustom(${id})" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <option value="">Selecionar...</option>
+                        ${options}
+                        <option value="Outros">Outros</option>
+                    </select>
+                    <input type="text" id="sinistro-agente-custom-${id}" class="hidden w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm" placeholder="Nome do agente...">
+                </div>
+                <button onclick="removeAgenteSinistro(${id})" class="p-2 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            `;
+            container.appendChild(div);
+            if (data) {
+                const select = document.getElementById(`sinistro-agente-select-${id}`);
+                const custom = document.getElementById(`sinistro-agente-custom-${id}`);
+                if (DET_CODES.some(c => `DET ${c}` === data)) {
+                    select.value = data;
+                } else {
+                    select.value = 'Outros';
+                    custom.value = data;
+                    custom.classList.remove('hidden');
+                }
+            }
+            lucide.createIcons();
+            saveDraft();
+        }
+
+        function removeAgenteSinistro(id) {
+            document.getElementById(`sinistro-agente-row-${id}`).remove();
+            saveDraft();
+        }
+
+        function toggleSinistroAgenteCustom(id) {
+            const val = document.getElementById(`sinistro-agente-select-${id}`).value;
+            document.getElementById(`sinistro-agente-custom-${id}`).classList.toggle('hidden', val !== 'Outros');
+            saveDraft();
+        }
+
+        function addVtrSinistro(data = null) {
+            sinistroVtrsCount++;
+            const container = document.getElementById('sinistro-vtrs-container');
+            const div = document.createElement('div');
+            const id = sinistroVtrsCount;
+            div.id = `sinistro-vtr-row-${id}`;
+            div.className = 'flex gap-2 items-center';
+            
+            let options = VTR_CODES.map(code => `<option value="${code}">${code}</option>`).join('');
+            
+            div.innerHTML = `
+                <div class="flex-1 flex flex-col gap-1">
+                    <select id="sinistro-vtr-select-${id}" onchange="toggleSinistroVtrCustom(${id})" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <option value="">Selecionar...</option>
+                        ${options}
+                        <option value="Outros">Outros</option>
+                    </select>
+                    <input type="text" id="sinistro-vtr-custom-${id}" class="hidden w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm" placeholder="Prefixo VTR...">
+                </div>
+                <button onclick="removeVtrSinistro(${id})" class="p-2 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            `;
+            container.appendChild(div);
+            if (data) {
+                const select = document.getElementById(`sinistro-vtr-select-${id}`);
+                const custom = document.getElementById(`sinistro-vtr-custom-${id}`);
+                if (VTR_CODES.includes(data)) {
+                    select.value = data;
+                } else {
+                    select.value = 'Outros';
+                    custom.value = data;
+                    custom.classList.remove('hidden');
+                }
+            }
+            lucide.createIcons();
+            saveDraft();
+        }
+
+        function removeVtrSinistro(id) {
+            document.getElementById(`sinistro-vtr-row-${id}`).remove();
+            saveDraft();
+        }
+
+        function toggleSinistroVtrCustom(id) {
+            const val = document.getElementById(`sinistro-vtr-select-${id}`).value;
+            document.getElementById(`sinistro-vtr-custom-${id}`).classList.toggle('hidden', val !== 'Outros');
+            saveDraft();
+        }
+
+        function handlePhotoUpload(event) {
+            const files = event.target.files;
+            if (!files) return;
+            
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const base64 = e.target.result;
+                    // Limit to 10 photos to avoid localStorage issues
+                    if (sinistroPhotos.length >= 10) return showToast('Limite de 10 fotos atingido.', 'error');
+                    sinistroPhotos.push(base64);
+                    renderPhotos();
+                    saveDraft();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderPhotos() {
+            const container = document.getElementById('sinistro-photos-container');
+            container.innerHTML = '';
+            sinistroPhotos.forEach((photo, idx) => {
+                const div = document.createElement('div');
+                div.className = 'relative aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-100';
+                div.innerHTML = `
+                    <img src="${photo}" class="w-full h-full object-cover">
+                    <button onclick="removePhoto(${idx})" class="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-lg">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function removePhoto(idx) {
+            sinistroPhotos.splice(idx, 1);
+            renderPhotos();
             saveDraft();
         }
 
@@ -962,6 +1093,8 @@
                 addEnvolvido();
                 addApoio();
                 addSocorro();
+                addAgenteSinistro();
+                addVtrSinistro();
             }
             saveDraft();
         }
@@ -1182,7 +1315,7 @@
             // Clear Sinistro fields
             const sinistroInputs = [
                 'sinistro-data', 'sinistro-hora', 'sinistro-numero', 'sinistro-endereco',
-                'sinistro-resumo', 'sinistro-agentes-custom', 'sinistro-supervisao', 
+                'sinistro-resumo', 'sinistro-supervisao', 
                 'sinistro-responsavel', 'sinistro-matricula', 'sinistro-data-final'
             ];
             sinistroInputs.forEach(id => {
@@ -1191,17 +1324,17 @@
             });
             document.getElementById('sinistro-origem').value = '';
             document.getElementById('sinistro-caracteristica').value = '';
-            document.getElementById('sinistro-sexo').value = '';
-            document.getElementById('sinistro-agentes-select').value = '';
-            document.getElementById('sinistro-vtr').value = '';
             
             document.getElementById('envolvidos-container').innerHTML = '';
             document.getElementById('apoio-container').innerHTML = '';
             document.getElementById('socorro-container').innerHTML = '';
             document.getElementById('vitimas-container').innerHTML = '';
+            document.getElementById('sinistro-agentes-container').innerHTML = '';
+            document.getElementById('sinistro-vtrs-container').innerHTML = '';
+            document.getElementById('sinistro-photos-container').innerHTML = '';
+            sinistroPhotos = [];
             
             toggleEspecialFields();
-            toggleCustomAgente();
             toggleVitimaFields();
 
             document.getElementById('edit-indicator-simples').classList.add('hidden');
@@ -1235,11 +1368,18 @@
                         origem: document.getElementById('sinistro-origem').value,
                         endereco: document.getElementById('sinistro-endereco').value,
                         caracteristica: document.getElementById('sinistro-caracteristica').value,
-                        sexo: document.getElementById('sinistro-sexo').value,
                         resumo: document.getElementById('sinistro-resumo').value,
-                        agentesSelect: document.getElementById('sinistro-agentes-select').value,
-                        agentesCustom: document.getElementById('sinistro-agentes-custom').value,
-                        vtr: document.getElementById('sinistro-vtr').value,
+                        agentes: Array.from(document.getElementById('sinistro-agentes-container').children).map(div => {
+                            const id = div.id.split('-').pop();
+                            const select = document.getElementById(`sinistro-agente-select-${id}`).value;
+                            return select === 'Outros' ? document.getElementById(`sinistro-agente-custom-${id}`).value : select;
+                        }).filter(v => v),
+                        vtrs: Array.from(document.getElementById('sinistro-vtrs-container').children).map(div => {
+                            const id = div.id.split('-').pop();
+                            const select = document.getElementById(`sinistro-vtr-select-${id}`).value;
+                            return select === 'Outros' ? document.getElementById(`sinistro-vtr-custom-${id}`).value : select;
+                        }).filter(v => v),
+                        photos: sinistroPhotos,
                         supervisao: document.getElementById('sinistro-supervisao').value,
                         responsavel: document.getElementById('sinistro-responsavel').value,
                         matricula: document.getElementById('sinistro-matricula').value,
@@ -1273,6 +1413,7 @@
                             const id = div.id.split('-')[1];
                             return {
                                 nome: document.getElementById(`vitima-nome-${id}`).value,
+                                sexo: document.getElementById(`vitima-sexo-${id}`).value,
                                 estado: document.getElementById(`vitima-estado-${id}`).value,
                                 descricao: document.getElementById(`vitima-descricao-${id}`).value
                             };
