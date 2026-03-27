@@ -356,7 +356,20 @@
                             <label class="text-xs font-bold text-slate-500 uppercase">Agentes Envolvidos</label>
                             <div class="flex flex-col gap-2">
                                 <select id="sinistro-agentes-select" onchange="toggleCustomAgente()" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
-                                    <option value="Apenas eu">Apenas eu</option>
+                                    <option value="">Selecionar...</option>
+                                    <option value="DET 08">DET 08</option>
+                                    <option value="DET 10">DET 10</option>
+                                    <option value="DET 12">DET 12</option>
+                                    <option value="DET 20">DET 20</option>
+                                    <option value="DET 22">DET 22</option>
+                                    <option value="DET 35">DET 35</option>
+                                    <option value="DET 46">DET 46</option>
+                                    <option value="DET 47">DET 47</option>
+                                    <option value="DET 54">DET 54</option>
+                                    <option value="DET 59">DET 59</option>
+                                    <option value="DET 61">DET 61</option>
+                                    <option value="DET 65">DET 65</option>
+                                    <option value="DET 86">DET 86</option>
                                     <option value="Outros">Outros (Escrever manualmente)</option>
                                 </select>
                                 <input type="text" id="sinistro-agentes-custom" class="hidden w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900" placeholder="Nomes dos agentes...">
@@ -365,6 +378,7 @@
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-500 uppercase">VTR</label>
                             <select id="sinistro-vtr" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
+                                <option value="">Selecionar...</option>
                                 <option value="1390">1390</option>
                                 <option value="1393">1393</option>
                                 <option value="1395">1395</option>
@@ -378,7 +392,7 @@
                             <input type="text" id="sinistro-supervisao" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500 uppercase">Responsável</label>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Responsável pelo Relatório</label>
                             <input type="text" id="sinistro-responsavel" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
                         </div>
                     </div>
@@ -583,15 +597,15 @@
                 document.getElementById('sinistro-data').value = draft.sinistro.data || '';
                 document.getElementById('sinistro-hora').value = draft.sinistro.hora || '';
                 document.getElementById('sinistro-numero').value = draft.sinistro.numero || '';
-                document.getElementById('sinistro-origem').value = draft.sinistro.origem || 'Fiscalização de rotina';
+                document.getElementById('sinistro-origem').value = draft.sinistro.origem || '';
                 document.getElementById('sinistro-endereco').value = draft.sinistro.endereco || '';
-                document.getElementById('sinistro-caracteristica').value = draft.sinistro.caracteristica || 'Com vítima';
-                document.getElementById('sinistro-sexo').value = draft.sinistro.sexo || 'Masculino';
+                document.getElementById('sinistro-caracteristica').value = draft.sinistro.caracteristica || '';
+                document.getElementById('sinistro-sexo').value = draft.sinistro.sexo || '';
                 
                 document.getElementById('sinistro-resumo').value = draft.sinistro.resumo || '';
-                document.getElementById('sinistro-agentes-select').value = draft.sinistro.agentesSelect || 'DET 08';
+                document.getElementById('sinistro-agentes-select').value = draft.sinistro.agentesSelect || '';
                 document.getElementById('sinistro-agentes-custom').value = draft.sinistro.agentesCustom || '';
-                document.getElementById('sinistro-vtr').value = draft.sinistro.vtr || '1390';
+                document.getElementById('sinistro-vtr').value = draft.sinistro.vtr || '';
                 document.getElementById('sinistro-supervisao').value = draft.sinistro.supervisao || '';
                 document.getElementById('sinistro-responsavel').value = draft.sinistro.responsavel || '';
                 document.getElementById('sinistro-matricula').value = draft.sinistro.matricula || '';
@@ -713,6 +727,7 @@
                 <div class="space-y-2">
                     <label id="envolvido-label-${id}" class="text-[10px] font-bold text-slate-500 uppercase">Condutor ${container.children.length + 1}</label>
                     <select id="envolvido-tipo-${id}" onchange="toggleEnvolvidoFields(${id})" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <option value="">Selecionar...</option>
                         <option value="Carro 🚗">Carro 🚗</option>
                         <option value="Moto 🏍️">Moto 🏍️</option>
                         <option value="Caminhão 🚛">Caminhão 🚛</option>
@@ -785,6 +800,7 @@
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Apoio</label>
                     <select id="apoio-tipo-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <option value="">Selecionar...</option>
                         <option value="PM">PM</option>
                         <option value="GCM">GCM</option>
                     </select>
@@ -828,6 +844,7 @@
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Socorro</label>
                     <select id="socorro-tipo-${id}" onchange="toggleSocorroVtrFields(${id})" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <option value="">Selecionar...</option>
                         <option value="SAMU">SAMU</option>
                         <option value="Resgate">Resgate</option>
                         <option value="Vítima Recusou">Vítima Recusou</option>
@@ -885,6 +902,7 @@
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Estado da Vítima</label>
                     <select id="vitima-estado-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <option value="">Selecionar...</option>
                         <option value="Leve">Leve</option>
                         <option value="Grave">Grave</option>
                         <option value="Gravíssimo">Gravíssimo</option>
@@ -1171,11 +1189,11 @@
                 const el = document.getElementById(id);
                 if (el) el.value = '';
             });
-            document.getElementById('sinistro-origem').value = 'Fiscalização de rotina';
-            document.getElementById('sinistro-caracteristica').value = 'Com vítima';
-            document.getElementById('sinistro-sexo').value = 'Masculino';
-            document.getElementById('sinistro-agentes-select').value = 'DET 08';
-            document.getElementById('sinistro-vtr').value = '1390';
+            document.getElementById('sinistro-origem').value = '';
+            document.getElementById('sinistro-caracteristica').value = '';
+            document.getElementById('sinistro-sexo').value = '';
+            document.getElementById('sinistro-agentes-select').value = '';
+            document.getElementById('sinistro-vtr').value = '';
             
             document.getElementById('envolvidos-container').innerHTML = '';
             document.getElementById('apoio-container').innerHTML = '';
