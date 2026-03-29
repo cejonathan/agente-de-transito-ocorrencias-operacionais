@@ -415,6 +415,9 @@
         <div id="content-historico" class="hidden space-y-4">
             <div class="flex items-center justify-between px-2">
                 <h2 class="font-black text-slate-500 uppercase text-xs tracking-widest">Registros Salvos (<span id="history-count">0</span>)</h2>
+                <button onclick="openClearHistoryConfirm()" class="text-[10px] font-bold text-red-500 uppercase flex items-center gap-1 hover:text-red-400 transition-colors">
+                    <i data-lucide="trash-2" class="w-3 h-3"></i> Limpar Tudo
+                </button>
             </div>
             <div id="history-list" class="space-y-6"></div>
         </div>
@@ -1146,12 +1149,42 @@
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const base64 = e.target.result;
-                    // Limit to 10 photos to avoid localStorage issues
-                    if (sinistroPhotos.length >= 10) return showToast('Limite de 10 fotos atingido.', 'error');
-                    sinistroPhotos.push(base64);
-                    renderPhotos();
-                    saveDraft();
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        // Max dimensions for compression
+                        const MAX_WIDTH = 800;
+                        const MAX_HEIGHT = 800;
+                        
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Compress to JPEG with 0.7 quality
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        if (sinistroPhotos.length >= 10) return showToast('Limite de 10 fotos atingido.', 'error');
+                        sinistroPhotos.push(compressedBase64);
+                        renderPhotos();
+                        saveDraft();
+                    };
+                    img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             });
@@ -1388,6 +1421,22 @@
                 };
             }
         }
+        function openClearHistoryConfirm() {
+            const modal = getEl('confirm-modal');
+            if (modal) modal.classList.replace('hidden', 'flex');
+            const btn = getEl('confirm-delete-btn');
+            if (btn) {
+                btn.onclick = () => {
+                    reports = [];
+                    localStorage.setItem('traffic_reports', JSON.stringify(reports));
+                    closeConfirm();
+                    renderHistory();
+                    updateTodayCounter();
+                    showToast('Histórico limpo com sucesso.');
+                };
+            }
+        }
+
         function closeConfirm() { 
             const modal = getEl('confirm-modal');
             if (modal) modal.classList.replace('flex', 'hidden'); 
@@ -1625,7 +1674,11 @@
                 handleClear();
             } catch (error) {
                 console.error('Save error:', error);
-                showToast('Erro ao salvar. Verifique se há espaço no armazenamento.', 'error');
+                if (error.name === 'QuotaExceededError' || error.message.includes('quota')) {
+                    showToast('Memória cheia! Limpe o histórico ou remova fotos.', 'error');
+                } else {
+                    showToast('Erro ao salvar. Tente novamente.', 'error');
+                }
             }
         }
 
@@ -1673,7 +1726,7 @@
 
                 if (grp.simples.length > 0) {
                     const card = document.createElement('div');
-                    card.className = 'glass-card rounded-3xl p-5 shadow-2xl space-y-4 border-l-4 border-l-indigo-500/50';
+                    card.className = 'bg-white rounded-3xl p-5 shadow-sm space-y-4 border border-slate-200 border-l-4 border-l-indigo-500';
                     const allItems = grp.simples.flatMap(r => r.data.items || []);
                     const ids = grp.simples.map(r => r.id).join(',');
                     
@@ -1687,8 +1740,8 @@
                                         <button onclick="openConfirm('${r.id}')" class="text-[9px] text-red-400 font-bold uppercase">Remover</button>
                                     </div>
                                 </div>
-                                <div class="text-[10px] text-slate-400 bg-slate-800/50 p-3 rounded-xl border border-slate-800 space-y-1">
-                                    ${r.data.items.map(it => `<div class="flex justify-between"><span class="font-bold text-slate-300">${it.codigo}</span><span class="truncate ml-2 text-slate-500">${it.local}</span></div>`).join('')}
+                                <div class="text-[10px] text-slate-600 p-3 rounded-xl border border-slate-100 space-y-1">
+                                    ${r.data.items.map(it => `<div class="flex justify-between"><span class="font-bold text-slate-700">${it.codigo}</span><span class="truncate ml-2 text-slate-500">${it.local}</span></div>`).join('')}
                                 </div>
                             </div>
                         `;
@@ -1697,10 +1750,10 @@
                     card.innerHTML = `
                         <div class="flex justify-between items-center">
                             <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400">Ocorrências Simples</span>
-                            <button onclick="openConfirm('${ids}')" class="p-1 text-slate-600 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button onclick="openConfirm('${ids}')" class="p-1 text-slate-400 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                         <div class="space-y-4">${itemsHtml}</div>
-                        <button onclick="sendWhatsAppBulk('${date}')" class="w-full bg-green-600/10 text-green-400 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-green-600/20 transition-all border border-green-600/20">
+                        <button onclick="sendWhatsAppBulk('${date}')" class="w-full bg-green-600/10 text-green-600 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-green-600/20 transition-all border border-green-600/20">
                             <i data-lucide="send" class="w-3 h-3"></i> Enviar Tudo (${date})
                         </button>
                     `;
@@ -1709,22 +1762,22 @@
 
                 grp.especial.sort((a,b) => b.timestamp - a.timestamp).forEach(r => {
                     const card = document.createElement('div');
-                    card.className = 'glass-card rounded-3xl p-5 shadow-2xl space-y-3 border-l-4 border-l-amber-500/50';
+                    card.className = 'bg-white rounded-3xl p-5 shadow-sm space-y-3 border border-slate-200 border-l-4 border-l-amber-500';
                     
                     let contentHtml = '';
                     if (r.data.tipo === 'Sinistro de trânsito') {
                         contentHtml = `
                             <div class="space-y-1">
-                                <p class="font-bold text-slate-200">N° ${r.data.numero || 'S/N'}</p>
-                                <p class="text-sm text-slate-400 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${r.data.endereco}</p>
-                                <p class="text-[10px] text-slate-500 uppercase font-bold">${r.data.data} às ${r.data.hora}</p>
+                                <p class="font-bold text-slate-800">N° ${r.data.numero || 'S/N'}</p>
+                                <p class="text-sm text-slate-500 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${r.data.endereco}</p>
+                                <p class="text-[10px] text-slate-400 uppercase font-bold">${r.data.data} às ${r.data.hora}</p>
                             </div>
                         `;
                     } else {
                         contentHtml = `
                             <div class="space-y-1">
-                                <p class="font-bold text-slate-200">${r.data.descricao}</p>
-                                <p class="text-sm text-slate-400 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${r.data.local}</p>
+                                <p class="font-bold text-slate-800">${r.data.descricao}</p>
+                                <p class="text-sm text-slate-500 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${r.data.local}</p>
                             </div>
                         `;
                     }
