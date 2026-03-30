@@ -1188,38 +1188,9 @@
             filesToProcess.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        const MAX_WIDTH = 600;
-                        const MAX_HEIGHT = 600;
-                        
-                        if (width > height) {
-                            if (width > MAX_WIDTH) {
-                                height *= MAX_WIDTH / width;
-                                width = MAX_WIDTH;
-                            }
-                        } else {
-                            if (height > MAX_HEIGHT) {
-                                width *= MAX_HEIGHT / height;
-                                height = MAX_HEIGHT;
-                            }
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
-                        sinistroPhotos.push(compressedBase64);
-                        renderPhotos();
-                        saveDraft();
-                    };
-                    img.src = e.target.result;
+                    sinistroPhotos.push(e.target.result);
+                    renderPhotos();
+                    saveDraft();
                 };
                 reader.readAsDataURL(file);
             });
@@ -1951,13 +1922,14 @@
             if (!r) return;
             let message = '';
             const reportAgent = r.agent || agentName;
+            const reportDate = new Date(r.timestamp).toLocaleDateString('pt-BR');
             if (r.type === 'simples') {
-                message = formatSimplesMessage(r.data.items, reportAgent);
+                message = formatSimplesMessage(r.data.items, reportAgent, reportDate);
             } else {
                 if (r.data.tipo === 'Sinistro de trânsito') {
                     message = formatSinistroMessage(r.data);
                 } else {
-                    message = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${reportAgent}\n\n*OCORRÊNCIA ESPECIAL*\n\n*Tipo:* ${r.data.tipo.toUpperCase()}\n*Descrição:* ${r.data.descricao}\n*Local:* ${r.data.local}`;
+                    message = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${reportAgent}\n*Data:* ${reportDate}\n\n*OCORRÊNCIA ESPECIAL*\n\n*Tipo:* ${r.data.tipo.toUpperCase()}\n*Descrição:* ${r.data.descricao}\n*Local:* ${r.data.local}`;
                 }
             }
 
@@ -2058,18 +2030,20 @@
         function sendWhatsAppBulk(date) {
             const dayReports = reports.filter(r => new Date(r.timestamp).toLocaleDateString('pt-BR') === date && r.type === 'simples');
             const allItems = dayReports.flatMap(r => r.data.items);
-            const message = formatSimplesMessage(allItems, agentName);
+            const message = formatSimplesMessage(allItems, agentName, date);
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
-        function formatSimplesMessage(items, name) {
+        function formatSimplesMessage(items, name, date = null) {
             const currentAgent = name || agentName;
             const grouped = {};
             items.forEach(it => {
                 if (!grouped[it.codigo]) grouped[it.codigo] = [];
                 grouped[it.codigo].push(it.local);
             });
-            let msg = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${currentAgent}\n\n*OCORRÊNCIAS SIMPLES*\n`;
+            let msg = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${currentAgent}\n`;
+            if (date) msg += `*Data:* ${date}\n`;
+            msg += `\n*OCORRÊNCIAS SIMPLES*\n`;
             Object.keys(grouped).forEach(cod => {
                 msg += `\n*Código:* ${cod}\n*Locais:*`;
                 grouped[cod].forEach(loc => msg += `\n- ${loc}`);
