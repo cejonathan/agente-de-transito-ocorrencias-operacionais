@@ -107,6 +107,7 @@
                     <div class="flex items-center gap-2">
                         <p class="text-indigo-600 text-[10px] uppercase tracking-widest font-bold">Registro Operacional</p>
                         <span id="today-counter" class="bg-indigo-500/10 text-indigo-600 text-[9px] px-1.5 py-0.5 rounded-full font-black border border-indigo-500/20">0 HOJE</span>
+                        <span id="storage-usage" class="text-[9px] font-black uppercase tracking-tighter">0.00MB / 5MB</span>
                     </div>
                 </div>
             </div>
@@ -391,8 +392,8 @@
                         <div class="flex items-center justify-between">
                             <label class="text-xs font-bold text-slate-500 uppercase">Fotos do Sinistro</label>
                             <label class="cursor-pointer text-indigo-600 hover:text-indigo-500 transition-colors flex items-center gap-1 text-[10px] font-bold uppercase">
-                                <i data-lucide="camera" class="w-3 h-3"></i> Tirar/Anexar Foto
-                                <input type="file" accept="image/*" capture="environment" multiple class="hidden" onchange="handlePhotoUpload(event)">
+                                <i data-lucide="image" class="w-3 h-3"></i> Anexar Fotos
+                                <input type="file" id="sinistro-photo-input" accept="image/*" multiple class="hidden" onchange="handlePhotoUpload(event)">
                             </label>
                         </div>
                         <div id="sinistro-photos-container" class="grid grid-cols-3 gap-2"></div>
@@ -415,9 +416,14 @@
         <div id="content-historico" class="hidden space-y-4">
             <div class="flex items-center justify-between px-2">
                 <h2 class="font-black text-slate-500 uppercase text-xs tracking-widest">Registros Salvos (<span id="history-count">0</span>)</h2>
-                <button onclick="openClearHistoryConfirm()" class="text-[10px] font-bold text-red-500 uppercase flex items-center gap-1 hover:text-red-400 transition-colors">
-                    <i data-lucide="trash-2" class="w-3 h-3"></i> Limpar Tudo
-                </button>
+                <div class="flex gap-3">
+                    <button onclick="clearAllPhotos()" class="text-[10px] font-bold text-amber-600 uppercase flex items-center gap-1 hover:text-amber-500 transition-colors">
+                        <i data-lucide="image-off" class="w-3 h-3"></i> Limpar Fotos
+                    </button>
+                    <button onclick="openClearHistoryConfirm()" class="text-[10px] font-bold text-red-500 uppercase flex items-center gap-1 hover:text-red-400 transition-colors">
+                        <i data-lucide="trash-2" class="w-3 h-3"></i> Limpar Tudo
+                    </button>
+                </div>
             </div>
             <div id="history-list" class="space-y-6"></div>
         </div>
@@ -471,6 +477,7 @@
                 renderSelects();
                 renderHistory();
                 updateAgentNameDisplay();
+                updateStorageUsage();
                 renderResponsavelOptions();
                 loadDraft();
                 switchTab(activeTab);
@@ -587,8 +594,12 @@
                 localStorage.setItem('traffic_active_tab', activeTab);
                 if (editingId) localStorage.setItem('traffic_editing_id', editingId);
                 else localStorage.removeItem('traffic_editing_id');
+                updateStorageUsage();
             } catch (e) {
                 console.warn('Draft save failed (likely storage limit):', e);
+                if (e.name === 'QuotaExceededError' || e.message.includes('quota')) {
+                    showToast('Memória cheia! Remova fotos ou limpe o histórico.', 'error');
+                }
                 if (draft) {
                     draft.sinistro.photos = [];
                     try {
@@ -597,6 +608,22 @@
                         console.error('Even draft without photos failed:', e2);
                     }
                 }
+            }
+        }
+
+        function updateStorageUsage() {
+            let total = 0;
+            for (let x in localStorage) {
+                if (localStorage.hasOwnProperty(x)) {
+                    total += (localStorage[x].length * 2);
+                }
+            }
+            const mb = (total / (1024 * 1024)).toFixed(2);
+            const usageEl = getEl('storage-usage');
+            if (usageEl) {
+                usageEl.textContent = `${mb}MB / 5MB`;
+                const percent = Math.min(100, (total / (5 * 1024 * 1024)) * 100);
+                usageEl.style.color = percent > 80 ? '#ef4444' : (percent > 50 ? '#f59e0b' : '#6366f1');
             }
         }
 
@@ -1146,7 +1173,19 @@
             const files = event.target.files;
             if (!files) return;
             
-            Array.from(files).forEach(file => {
+            const remainingSlots = 10 - sinistroPhotos.length;
+            if (remainingSlots <= 0) {
+                showToast('Limite de 10 fotos atingido.', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            const filesToProcess = Array.from(files).slice(0, remainingSlots);
+            if (files.length > remainingSlots) {
+                showToast(`Apenas as primeiras ${remainingSlots} fotos serão processadas.`, 'warning');
+            }
+
+            filesToProcess.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
@@ -1155,9 +1194,8 @@
                         let width = img.width;
                         let height = img.height;
                         
-                        // Max dimensions for compression
-                        const MAX_WIDTH = 800;
-                        const MAX_HEIGHT = 800;
+                        const MAX_WIDTH = 600;
+                        const MAX_HEIGHT = 600;
                         
                         if (width > height) {
                             if (width > MAX_WIDTH) {
@@ -1176,10 +1214,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // Compress to JPEG with 0.7 quality
-                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                        
-                        if (sinistroPhotos.length >= 10) return showToast('Limite de 10 fotos atingido.', 'error');
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
                         sinistroPhotos.push(compressedBase64);
                         renderPhotos();
                         saveDraft();
@@ -1188,6 +1223,7 @@
                 };
                 reader.readAsDataURL(file);
             });
+            event.target.value = '';
         }
 
         function renderPhotos() {
@@ -1285,6 +1321,7 @@
             agentName = newName;
             localStorage.setItem('traffic_agent_name', agentName);
             updateAgentNameDisplay();
+            updateStorageUsage();
             closeNameModal();
             showToast('Nome atualizado!');
         }
@@ -1304,6 +1341,7 @@
             availableLocais.push(name);
             localStorage.setItem('traffic_available_locais', JSON.stringify(availableLocais));
             renderSelects();
+            updateStorageUsage();
             setVal('simples-local', name);
             setVal('new-local-input', '');
             closeLocalModal();
@@ -1401,6 +1439,7 @@
             } else {
                 localStorage.setItem('traffic_available_locais', JSON.stringify(availableLocais));
             }
+            updateStorageUsage();
         }
 
         let deleteTargetId = null;
@@ -1417,10 +1456,27 @@
                     closeConfirm();
                     renderHistory();
                     updateTodayCounter();
+                    updateStorageUsage();
                     showToast('Excluído com sucesso.');
                 };
             }
         }
+        function clearAllPhotos() {
+            if (!confirm('Deseja remover TODAS as fotos de todos os registros para liberar espaço? Os textos serão mantidos.')) return;
+            
+            reports = reports.map(r => {
+                if (r.data && r.data.photos) {
+                    return { ...r, data: { ...r.data, photos: [] } };
+                }
+                return r;
+            });
+            
+            localStorage.setItem('traffic_reports', JSON.stringify(reports));
+            renderHistory();
+            updateStorageUsage();
+            showToast('Fotos removidas com sucesso!');
+        }
+
         function openClearHistoryConfirm() {
             const modal = getEl('confirm-modal');
             if (modal) modal.classList.replace('hidden', 'flex');
@@ -1432,6 +1488,7 @@
                     closeConfirm();
                     renderHistory();
                     updateTodayCounter();
+                    updateStorageUsage();
                     showToast('Histórico limpo com sucesso.');
                 };
             }
@@ -1671,6 +1728,7 @@
                 localStorage.removeItem('traffic_editing_id');
                 showToast(editingId ? 'Atualizado!' : 'Salvo localmente!');
                 updateTodayCounter();
+                updateStorageUsage();
                 handleClear();
             } catch (error) {
                 console.error('Save error:', error);
