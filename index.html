@@ -144,14 +144,14 @@
     <main class="max-w-md mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6">
         <!-- Tabs -->
         <div class="flex glass-card p-1.5 rounded-2xl shadow-2xl overflow-x-auto no-scrollbar">
-            <button onclick="switchTab('simples')" id="tab-simples" class="active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap">
-                <i data-lucide="file-text" class="w-4 h-4"></i> Simples
+            <button onclick="switchTab('simples')" id="tab-simples" class="active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase">
+                <i data-lucide="file-text" class="w-4 h-4"></i> SIMPLES
             </button>
-            <button onclick="switchTab('especial')" id="tab-especial" class="inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap">
-                <i data-lucide="alert-triangle" class="w-4 h-4"></i> Especial
+            <button onclick="switchTab('especial')" id="tab-especial" class="inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i> ESPECIAL
             </button>
-            <button onclick="switchTab('historico')" id="tab-historico" class="inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap">
-                <i data-lucide="history" class="w-4 h-4"></i> Histórico
+            <button onclick="switchTab('historico')" id="tab-historico" class="inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase">
+                <i data-lucide="history" class="w-4 h-4"></i> HISTÓRICO
             </button>
         </div>
 
@@ -783,9 +783,9 @@
             const tabEspecial = getEl('tab-especial');
             const tabHistorico = getEl('tab-historico');
 
-            if (tabSimples) tabSimples.className = tab === 'simples' ? 'active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap' : 'inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap';
-            if (tabEspecial) tabEspecial.className = tab === 'especial' ? 'active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap' : 'inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap';
-            if (tabHistorico) tabHistorico.className = tab === 'historico' ? 'active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap' : 'inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap';
+            if (tabSimples) tabSimples.className = tab === 'simples' ? 'active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase' : 'inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase';
+            if (tabEspecial) tabEspecial.className = tab === 'especial' ? 'active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase' : 'inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase';
+            if (tabHistorico) tabHistorico.className = tab === 'historico' ? 'active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase' : 'inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase';
             
             if (tab === 'historico') renderHistory();
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -1749,11 +1749,11 @@
 
                     card.innerHTML = `
                         <div class="flex justify-between items-center">
-                            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400">Ocorrências Simples</span>
+                            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400">OCORRÊNCIAS SIMPLES</span>
                             <button onclick="openConfirm('${ids}')" class="p-1 text-slate-400 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                         <div class="space-y-4">${itemsHtml}</div>
-                        <button onclick="sendWhatsAppBulk('${date}')" class="w-full bg-green-600/10 text-green-600 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-green-600/20 transition-all border border-green-600/20">
+                        <button onclick="sendWhatsAppBulk('${date}')" class="w-full bg-green-600/10 text-green-600 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-green-600/20 transition-all border border-green-600/20 uppercase">
                             <i data-lucide="send" class="w-3 h-3"></i> Enviar Tudo (${date})
                         </button>
                     `;
@@ -1785,7 +1785,7 @@
                     card.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400">${r.data.tipo}</span>
+                                <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400">${r.data.tipo.toUpperCase()}</span>
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="editReport('${r.id}')" class="p-2 text-slate-400 hover:text-indigo-400 transition-colors"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
@@ -1793,7 +1793,7 @@
                             </div>
                         </div>
                         ${contentHtml}
-                        <button onclick="sendWhatsAppSingle('${r.id}')" class="w-full bg-green-600/10 text-green-400 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-green-600/20 transition-colors border border-green-600/20">
+                        <button onclick="sendWhatsAppSingle('${r.id}')" class="w-full bg-green-600/10 text-green-400 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-green-600/20 transition-colors border border-green-600/20 uppercase">
                             <i data-lucide="send" class="w-3 h-3"></i> Reenviar WhatsApp
                         </button>
                     `;
@@ -1888,7 +1888,7 @@
         }
 
         // --- WHATSAPP ---
-        function sendWhatsAppSingle(id) {
+        async function sendWhatsAppSingle(id) {
             const r = reports.find(x => x.id === id);
             if (!r) return;
             let message = '';
@@ -1899,9 +1899,35 @@
                 if (r.data.tipo === 'Sinistro de trânsito') {
                     message = formatSinistroMessage(r.data);
                 } else {
-                    message = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${reportAgent}\n\n*OCORRÊNCIA ESPECIAL*\n\n*Tipo:* ${r.data.tipo}\n*Descrição:* ${r.data.descricao}\n*Local:* ${r.data.local}`;
+                    message = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${reportAgent}\n\n*OCORRÊNCIA ESPECIAL*\n\n*Tipo:* ${r.data.tipo.toUpperCase()}\n*Descrição:* ${r.data.descricao}\n*Local:* ${r.data.local}`;
                 }
             }
+
+            // Try to use Web Share API if it's a Sinistro with photos
+            if (r.data.tipo === 'Sinistro de trânsito' && r.data.photos && r.data.photos.length > 0 && navigator.share) {
+                try {
+                    const files = [];
+                    for (let i = 0; i < r.data.photos.length; i++) {
+                        const base64 = r.data.photos[i];
+                        const res = await fetch(base64);
+                        const blob = await res.blob();
+                        const file = new File([blob], `foto-${i + 1}.jpg`, { type: 'image/jpeg' });
+                        files.push(file);
+                    }
+
+                    if (navigator.canShare && navigator.canShare({ files })) {
+                        await navigator.share({
+                            files: files,
+                            title: 'Relatório de Sinistro',
+                            text: message
+                        });
+                        return;
+                    }
+                } catch (err) {
+                    console.error('Share failed:', err);
+                }
+            }
+
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
@@ -1962,9 +1988,12 @@
             }
             
             message += `*Supervisão:* ${d.supervisao}\n`;
-            message += `*Responsável pelo Relatório:* ${d.responsavel}\n*Matrícula:* ${d.matricula}\n*Data:* ${d.dataFinal}`;
+            message += `*Responsável pelo Relatório:* ${d.responsavel}\n*Matrícula:* ${d.matricula}\n*Data:* ${d.dataFinal}\n\n`;
             
-            // Ensure no photos are in the text message
+            if (d.photos && d.photos.length > 0) {
+                message += `*FOTOS:* ${d.photos.length} foto(s) anexada(s).`;
+            }
+
             return message;
         }
 
