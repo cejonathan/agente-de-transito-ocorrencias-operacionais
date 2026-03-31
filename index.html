@@ -1946,6 +1946,13 @@
         }
 
         // --- WHATSAPP ---
+        function formatDateBR(dateStr) {
+            if (!dateStr) return '---';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
         async function sendWhatsAppSingle(id) {
             const r = reports.find(x => x.id === id);
             if (!r) return;
@@ -1958,7 +1965,7 @@
                 if (r.data.tipo === 'Sinistro de trânsito') {
                     message = formatSinistroMessage(r.data);
                 } else {
-                    message = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${reportAgent}\n*Data:* ${reportDate}\n\n*OCORRÊNCIA ESPECIAL*\n\n*Tipo:* ${r.data.tipo.toUpperCase()}\n*Descrição:* ${r.data.descricao}\n*Local:* ${r.data.local}`;
+                    message = `*REGISTRO DE OCORRÊNCIAS*\n*AGENTE:* ${reportAgent}\n*DATA:* ${reportDate}\n\n*OCORRÊNCIA ESPECIAL*\n\n*TIPO:* ${r.data.tipo.toUpperCase()}\n*DESCRIÇÃO:* ${r.data.descricao}\n*LOCAL:* ${r.data.local}`;
                 }
             }
 
@@ -1992,17 +1999,17 @@
 
         function formatSinistroMessage(d) {
             let message = `*RELATÓRIO DE SINISTRO DE TRÂNSITO*\n\n`;
-            message += `*Data:* ${d.data}\n*Hora:* ${d.hora}\n*N° Ocorrência:* ${d.numero}\n*Origem:* ${d.origem}\n*Endereço:* ${d.endereco}\n`;
-            message += `*Característica:* ${d.caracteristica}\n\n`;
+            message += `*DATA:* ${formatDateBR(d.data)}\n*HORA:* ${d.hora}\n*N° OCORRÊNCIA:* ${d.numero}\n*ORIGEM:* ${d.origem}\n*ENDEREÇO:* ${d.endereco}\n`;
+            message += `*CARACTERÍSTICA:* ${d.caracteristica}\n\n`;
             
             if (Array.isArray(d.vitimas) && d.vitimas.length > 0 && d.caracteristica === 'Com vítima') {
                 message += `*VÍTIMAS:*\n`;
                 d.vitimas.forEach((v, i) => {
                     message += `Vítima ${i + 1}:\n`;
-                    message += `- Nome: ${v.nome || '---'}\n`;
-                    message += `- Sexo: ${v.sexo || '---'}\n`;
-                    message += `- Estado: ${v.estado || '---'}\n`;
-                    message += `- Descrição: ${v.descricao || '---'}\n`;
+                    message += `- NOME: ${v.nome || '---'}\n`;
+                    message += `- SEXO: ${v.sexo || '---'}\n`;
+                    message += `- ESTADO: ${v.estado || '---'}\n`;
+                    message += `- DESCRIÇÃO: ${v.descricao || '---'}\n`;
                 });
                 message += `\n`;
             }
@@ -2012,7 +2019,7 @@
                 d.envolvidos.forEach((env, i) => {
                     const tipoFinal = env.tipo === 'Outros' ? env.custom : env.tipo;
                     message += `Condutor ${i + 1}: ${tipoFinal}`;
-                    if (env.placa) message += ` | Placa: ${env.placa}`;
+                    if (env.placa) message += ` | PLACA: ${env.placa}`;
                     if (env.cnh) message += ` | CNH: ${env.cnh}`;
                     message += `\n`;
                 });
@@ -2024,7 +2031,7 @@
                 d.socorro.forEach(s => {
                     message += `- ${s.tipo}\n`;
                     if (s.prefixo) message += `  VTR: ${s.prefixo}\n`;
-                    if (s.responsavel) message += `  Resp: ${s.responsavel}\n`;
+                    if (s.responsavel) message += `  RESP: ${s.responsavel}\n`;
                 });
                 message += `\n`;
             }
@@ -2032,7 +2039,7 @@
             if (Array.isArray(d.apoio) && d.apoio.length > 0) {
                 message += `*APOIO POLICIAL:*\n`;
                 d.apoio.forEach((ap, i) => {
-                    message += `${i+1}. ${ap.tipo} | VTR: ${ap.prefixo} | Resp: ${ap.responsavel}\n`;
+                    message += `${i+1}. ${ap.tipo} | VTR: ${ap.prefixo} | RESP: ${ap.responsavel}\n`;
                 });
                 message += `\n`;
             }
@@ -2040,14 +2047,14 @@
             message += `*RESUMO DOS FATOS:* ${d.resumo}\n\n`;
             
             if (Array.isArray(d.agentes) && d.agentes.length > 0) {
-                message += `*Agentes:* ${d.agentes.join(', ')}\n`;
+                message += `*AGENTES:* ${d.agentes.join(', ')}\n`;
             }
             if (Array.isArray(d.vtrs) && d.vtrs.length > 0) {
                 message += `*VTR:* ${d.vtrs.join(', ')}\n`;
             }
             
-            message += `*Supervisão:* ${d.supervisao}\n`;
-            message += `*Responsável pelo Relatório:* ${d.responsavel}\n*Matrícula:* ${d.matricula}\n*Data:* ${d.dataFinal}\n\n`;
+            message += `*SUPERVISÃO:* ${d.supervisao}\n`;
+            message += `*RESPONSÁVEL PELO RELATÓRIO:* ${d.responsavel}\n*MATRÍCULA:* ${d.matricula}\n*DATA:* ${formatDateBR(d.dataFinal)}\n\n`;
             
             if (d.photos && d.photos.length > 0) {
                 message += `*FOTOS:* ${d.photos.length} foto(s) anexada(s).`;
@@ -2070,11 +2077,11 @@
                 if (!grouped[it.codigo]) grouped[it.codigo] = [];
                 grouped[it.codigo].push(it.local);
             });
-            let msg = `*REGISTRO DE OCORRÊNCIAS*\n*Agente:* ${currentAgent}\n`;
-            if (date) msg += `*Data:* ${date}\n`;
+            let msg = `*REGISTRO DE OCORRÊNCIAS*\n*AGENTE:* ${currentAgent}\n`;
+            if (date) msg += `*DATA:* ${date}\n`;
             msg += `\n*OCORRÊNCIAS SIMPLES*\n`;
             Object.keys(grouped).forEach(cod => {
-                msg += `\n*Código:* ${cod}\n*Locais:*`;
+                msg += `\n*CÓDIGO:* ${cod}\n*LOCAIS:*`;
                 grouped[cod].forEach(loc => msg += `\n- ${loc}`);
                 msg += `\n`;
             });
