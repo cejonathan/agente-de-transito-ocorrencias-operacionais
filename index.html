@@ -6,6 +6,8 @@
     <title>Agente Trânsito - Registro Operacional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -411,6 +413,9 @@
                 <button onclick="handleSaveReport()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
                     <i data-lucide="save" class="w-5 h-5"></i> Salvar
                 </button>
+                <button id="btn-gerar-pdf" onclick="generateSinistroPDF()" class="hidden w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="file-text" class="w-5 h-5"></i> Gerar PDF
+                </button>
                 <button onclick="handleClear()" class="w-full bg-slate-100 text-slate-500 py-3 rounded-xl font-bold uppercase text-xs active:scale-95 transition-all flex items-center justify-center gap-2 border border-slate-200">
                     <i data-lucide="eraser" class="w-4 h-4"></i> Limpar Formulário
                 </button>
@@ -431,6 +436,9 @@
             <div id="history-list" class="space-y-6"></div>
         </div>
     </main>
+
+    <!-- PDF Report Container (Hidden) -->
+    <div id="pdf-report-container" class="hidden fixed -left-[9999px] -top-[9999px] bg-white"></div>
 
     <script>
         // --- CONSTANTS ---
@@ -1312,9 +1320,11 @@
             
             const sinistroFields = getEl('sinistro-fields');
             const genericFields = getEl('generic-especial-fields');
+            const btnPdf = getEl('btn-gerar-pdf');
             
             if (sinistroFields) sinistroFields.classList.toggle('hidden', !isSinistro);
             if (genericFields) genericFields.classList.toggle('hidden', isSinistro || !tipo);
+            if (btnPdf) btnPdf.classList.toggle('hidden', !isSinistro);
             
             if (isSinistro) {
                 if (getEl('envolvidos-container')?.children.length === 0) {
@@ -2224,6 +2234,221 @@
                 msg += `\n`;
             });
             return msg;
+        }
+
+        async function generateSinistroPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            const container = getEl('pdf-report-container');
+            if (!container) return;
+            
+            showToast('Preparando PDF...', 'info');
+
+            const data = {
+                data: formatDateBR(getVal('sinistro-data')),
+                hora: getVal('sinistro-hora'),
+                numero: getVal('sinistro-numero'),
+                origem: getVal('sinistro-origem'),
+                endereco: getVal('sinistro-endereco'),
+                caracteristica: getVal('sinistro-caracteristica'),
+                resumo: getVal('sinistro-resumo'),
+                supervisao: getVal('sinistro-supervisao'),
+                responsavel: getVal('sinistro-responsavel-select') === 'Outros' ? getVal('sinistro-responsavel-custom') : getVal('sinistro-responsavel-select'),
+                matricula: getVal('sinistro-matricula'),
+                dataRelatorio: formatDateBR(getVal('sinistro-data-final')),
+                agentes: Array.from(getEl('sinistro-agentes-container').children).map(div => {
+                    const id = div.id.split('-').pop();
+                    const s = getVal(`sinistro-agente-select-${id}`);
+                    return s === 'Outros' ? getVal(`sinistro-agente-custom-${id}`) : s;
+                }).filter(v => v),
+                vtrs: Array.from(getEl('sinistro-vtrs-container').children).map(div => {
+                    const id = div.id.split('-').pop();
+                    const s = getVal(`sinistro-vtr-select-${id}`);
+                    return s === 'Outros' ? getVal(`sinistro-vtr-custom-${id}`) : s;
+                }).filter(v => v),
+                envolvidos: Array.from(getEl('envolvidos-container').children).map(div => {
+                    const id = div.id.split('-')[1];
+                    return {
+                        tipo: getVal(`envolvido-tipo-${id}`) === 'Outros' ? getVal(`envolvido-custom-${id}`) : getVal(`envolvido-tipo-${id}`),
+                        placa: getVal(`envolvido-placa-${id}`),
+                        cnh: getVal(`envolvido-cnh-${id}`)
+                    };
+                }),
+                apoio: Array.from(getEl('apoio-container').children).map(div => {
+                    const id = div.id.split('-')[1];
+                    return {
+                        tipo: getVal(`apoio-tipo-${id}`),
+                        prefixo: getVal(`apoio-prefixo-${id}`),
+                        responsavel: getVal(`apoio-responsavel-${id}`)
+                    };
+                }),
+                socorro: Array.from(getEl('socorro-container').children).map(div => {
+                    const id = div.id.split('-')[1];
+                    return {
+                        tipo: getVal(`socorro-tipo-${id}`),
+                        prefixo: getVal(`socorro-prefixo-${id}`),
+                        responsavel: getVal(`socorro-responsavel-${id}`)
+                    };
+                }),
+                vitimas: Array.from(getEl('vitimas-container').children).map(div => {
+                    const id = div.id.split('-')[1];
+                    return {
+                        nome: getVal(`vitima-nome-${id}`),
+                        sexo: getVal(`vitima-sexo-${id}`),
+                        estado: getVal(`vitima-estado-${id}`),
+                        descricao: getVal(`vitima-descricao-${id}`)
+                    };
+                })
+            };
+
+            const html = `
+                <div style="padding: 15mm; font-family: 'Inter', sans-serif; color: #000; background: #fff; width: 210mm; min-height: 297mm; box-sizing: border-box;">
+                    <!-- Header -->
+                    <div style="display: flex; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 25px; position: relative;">
+                        <div style="width: 70px; height: 70px; margin-right: 25px; display: flex; align-items: center; justify-content: center;">
+                             <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+                                <path d="M50 5L15 25V75L50 95L85 75V25L50 5Z" stroke="black" stroke-width="4"/>
+                                <path d="M50 20V80M20 40H80M20 60H80" stroke="black" stroke-width="2"/>
+                                <circle cx="50" cy="50" r="10" fill="black"/>
+                             </svg>
+                        </div>
+                        <div style="flex: 1; border-left: 2px solid #000; padding-left: 20px;">
+                            <div style="font-size: 32px; font-weight: 900; line-height: 1; letter-spacing: -1px;">Jacareí</div>
+                            <div style="font-size: 11px; font-style: italic; margin-bottom: 8px; color: #333;">Todo dia, um novo avanço</div>
+                            <div style="font-size: 16px; font-weight: 800; text-transform: uppercase;">Prefeitura de Jacareí</div>
+                            <div style="font-size: 14px; font-weight: 600;">Secretaria de Mobilidade Urbana</div>
+                        </div>
+                    </div>
+
+                    <h1 style="text-align: center; font-size: 20px; font-weight: 900; text-transform: uppercase; margin-bottom: 30px; border: 2px solid #000; padding: 10px;">Relatório de Sinistro de Trânsito</h1>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; font-size: 13px;">
+                        <div><strong>DATA DO FATO:</strong> ${data.data}</div>
+                        <div><strong>HORA:</strong> ${data.hora}</div>
+                        <div><strong>N° OCORRÊNCIA:</strong> ${data.numero || '---'}</div>
+                        <div><strong>ORIGEM:</strong> ${data.origem || '---'}</div>
+                    </div>
+
+                    <div style="margin-bottom: 20px; font-size: 13px;">
+                        <strong>ENDEREÇO:</strong> ${data.endereco}
+                    </div>
+
+                    <div style="margin-bottom: 20px; font-size: 13px;">
+                        <strong>CARACTERÍSTICA:</strong> ${data.caracteristica}
+                    </div>
+
+                    ${data.vitimas.length > 0 && data.caracteristica === 'Com vítima' ? `
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px;">Vítimas</div>
+                            ${data.vitimas.map((v, i) => `
+                                <div style="margin-bottom: 8px; padding: 10px; border: 1px solid #ddd; font-size: 12px;">
+                                    <div style="font-weight: 700; margin-bottom: 4px;">Vítima ${i+1}: ${v.nome || '---'}</div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                        <div><strong>Sexo:</strong> ${v.sexo || '---'}</div>
+                                        <div><strong>Estado:</strong> ${v.estado || '---'}</div>
+                                    </div>
+                                    <div style="margin-top: 4px;"><strong>Descrição:</strong> ${v.descricao || '---'}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${data.envolvidos.length > 0 ? `
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px;">Envolvidos / Veículos</div>
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 5px; font-size: 12px;">
+                                ${data.envolvidos.map((env, i) => `
+                                    <div style="padding: 5px; border-bottom: 1px solid #eee;">
+                                        <strong>${i+1}.</strong> ${env.tipo} ${env.placa ? `| <strong>PLACA:</strong> ${env.placa}` : ''} ${env.cnh ? `| <strong>CNH:</strong> ${env.cnh}` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${data.socorro.length > 0 ? `
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px;">Socorro Médico</div>
+                            <div style="font-size: 12px;">
+                                ${data.socorro.map(s => `
+                                    <div style="margin-bottom: 4px;">• ${s.tipo} ${s.prefixo ? `| VTR: ${s.prefixo}` : ''} ${s.responsavel ? `| RESP: ${s.responsavel}` : ''}</div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${data.apoio.length > 0 ? `
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px;">Apoio Policial</div>
+                            <div style="font-size: 12px;">
+                                ${data.apoio.map(ap => `
+                                    <div style="margin-bottom: 4px;">• ${ap.tipo} | VTR: ${ap.prefixo} | RESP: ${ap.responsavel}</div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div style="margin-bottom: 25px;">
+                        <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px;">Resumo dos Fatos</div>
+                        <div style="text-align: justify; line-height: 1.5; font-size: 13px; padding: 10px; border: 1px solid #eee;">${data.resumo || 'Nenhum resumo informado.'}</div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; font-size: 13px;">
+                        <div><strong>AGENTES ENVOLVIDOS:</strong> ${data.agentes.join(', ') || '---'}</div>
+                        <div><strong>VTR:</strong> ${data.vtrs.join(', ') || '---'}</div>
+                    </div>
+
+                    <div style="margin-bottom: 40px; font-size: 13px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div><strong>SUPERVISÃO:</strong> ${data.supervisao || '---'}</div>
+                        <div><strong>RESPONSÁVEL PELO RELATÓRIO:</strong> ${data.responsavel || '---'}</div>
+                        <div><strong>MATRÍCULA:</strong> ${data.matricula || '---'}</div>
+                        <div><strong>DATA DO RELATÓRIO:</strong> ${data.dataRelatorio}</div>
+                    </div>
+
+                    <!-- Signature Area -->
+                    <div style="margin-top: 60px; display: flex; flex-direction: column; align-items: center;">
+                        <div style="width: 300px; border-top: 2px solid #000; margin-bottom: 8px;"></div>
+                        <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Assinatura do Agente</div>
+                        <div style="font-size: 11px; color: #666; margin-top: 4px;">${data.responsavel} - Mat: ${data.matricula}</div>
+                    </div>
+
+                    <!-- Footer Info -->
+                    <div style="position: absolute; bottom: 15mm; left: 15mm; right: 15mm; border-top: 1px solid #eee; padding-top: 10px; font-size: 10px; color: #999; text-align: center;">
+                        Relatório gerado via Sistema de Registro Operacional - Jacareí
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+            container.classList.remove('hidden');
+
+            // Wait for fonts/images to load if any
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            try {
+                const canvas = await html2canvas(container, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+                
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const imgProps = doc.getImageProperties(imgData);
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                
+                doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                doc.save(`Sinistro_${data.numero.replace(/\//g, '-') || Date.now()}.pdf`);
+                showToast('PDF gerado com sucesso!', 'success');
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                showToast('Erro ao gerar PDF.', 'error');
+            } finally {
+                container.classList.add('hidden');
+                container.innerHTML = '';
+            }
         }
 
         init();
