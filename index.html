@@ -145,17 +145,23 @@
     <main class="max-w-md mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6">
         <!-- Tabs -->
         <div class="flex glass-card p-1.5 rounded-2xl shadow-2xl overflow-x-auto no-scrollbar">
-            <button onclick="switchTab('simples')" id="tab-simples" class="active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase">
-                <i data-lucide="file-text" class="w-4 h-4"></i> SIMPLES
-            </button>
-            <button onclick="switchTab('especial')" id="tab-especial" class="inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase">
-                <i data-lucide="alert-triangle" class="w-4 h-4"></i> ESPECIAL
+            <button onclick="switchTab('ocorrencias')" id="tab-ocorrencias" class="active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase">
+                <i data-lucide="clipboard-list" class="w-4 h-4"></i> OCORRÊNCIAS
             </button>
             <button onclick="switchTab('historico')" id="tab-historico" class="inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase">
                 <i data-lucide="history" class="w-4 h-4"></i> HISTÓRICO
             </button>
         </div>
 
+        <!-- Ocorrências Container -->
+        <div id="content-ocorrencias" class="space-y-4 sm:space-y-6">
+            <!-- Sub-tabs Ocorrências -->
+            <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                <button onclick="switchOcorrenciaType('simples')" id="subtab-simples" class="active-subtab flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all">SIMPLES</button>
+                <button onclick="switchOcorrenciaType('especial')" id="subtab-especial" class="inactive-subtab flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all">ESPECIAL</button>
+            </div>
+
+            <!-- Form Simples (Moved inside Ocorrências) -->
             <div id="content-simples" class="space-y-4 sm:space-y-6">
             <div class="glass-card rounded-3xl p-4 sm:p-6 shadow-lg space-y-4 sm:space-y-5">
                 <div id="edit-indicator-simples" class="hidden p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center justify-between">
@@ -409,10 +415,7 @@
                     <i data-lucide="eraser" class="w-4 h-4"></i> Limpar Formulário
                 </button>
             </div>
-        </div>
-
-
-        <!-- Histórico -->
+        </div> <!-- End of content-ocorrencias -->
         <div id="content-historico" class="hidden space-y-4">
             <div class="flex items-center justify-between px-2">
                 <h2 class="font-black text-slate-500 uppercase text-xs tracking-widest">Registros Salvos (<span id="history-count">0</span>)</h2>
@@ -450,7 +453,8 @@
         const VTR_CODES = ["AL 1389", "AL 1390", "AL 1393", "AL 1394", "AL 1395", "MH 01", "MH 02", "MH 03", "MH 04", "MH 05", "MH 06", "MH 07", "MH 08"];
 
         // --- STATE ---
-        let activeTab = localStorage.getItem('traffic_active_tab') || 'simples';
+        let activeTab = localStorage.getItem('traffic_active_tab') || 'ocorrencias';
+        let activeOcorrenciaType = localStorage.getItem('traffic_active_ocorrencia_type') || 'simples';
         let reports = JSON.parse(localStorage.getItem('traffic_reports') || '[]');
         let availableCodigos = JSON.parse(localStorage.getItem('traffic_available_codigos') || JSON.stringify(CODIGOS_DEFAULT));
         let availableLocais = JSON.parse(localStorage.getItem('traffic_available_locais') || JSON.stringify(LOCAIS_DEFAULT));
@@ -481,6 +485,7 @@
                 renderResponsavelOptions();
                 loadDraft();
                 switchTab(activeTab);
+                switchOcorrenciaType(activeOcorrenciaType);
 
                 if (typeof lucide !== 'undefined') {
                     lucide.createIcons();
@@ -759,38 +764,67 @@
         }
 
         function renderSelects() {
-            const codigoSelect = getEl('simples-codigo');
-            const localSelect = getEl('simples-local');
-            if (!codigoSelect || !localSelect) return;
+            const selects = [
+                { id: 'simples-codigo', data: availableCodigos, prefix: '' },
+                { id: 'simples-local', data: availableLocais, prefix: '' }
+            ];
+
+            selects.forEach(s => {
+                const el = getEl(s.id);
+                if (!el) return;
+                const current = el.value;
+                el.innerHTML = `<option value="">Selecionar ${s.id.includes('codigo') ? 'Código' : s.id.includes('local') ? 'Local' : s.id.includes('vtr') ? 'VTR' : 'Agente'}...</option>`;
+                s.data.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = s.prefix + item;
+                    opt.textContent = s.prefix + item;
+                    el.appendChild(opt);
+                });
+                if (s.id === 'simples-codigo' || s.id === 'simples-local') {
+                    el.innerHTML += '<option value="Outros">Outros (Escrever manualmente)</option>';
+                }
+                el.value = current;
+            });
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            localStorage.setItem('traffic_active_tab', tab);
             
-            const currentCodigo = codigoSelect.value;
-            const currentLocal = localSelect.value;
-
-            codigoSelect.innerHTML = '<option value="">Selecione um código...</option>';
-            availableCodigos.forEach(opt => {
-                const el = document.createElement('option');
-                el.value = opt;
-                el.textContent = opt;
-                codigoSelect.appendChild(el);
+            const tabs = ['ocorrencias', 'historico'];
+            tabs.forEach(t => {
+                const btn = getEl(`tab-${t}`);
+                const content = getEl(`content-${t}`);
+                if (btn) {
+                    btn.className = t === tab 
+                        ? 'active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase'
+                        : 'inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase';
+                }
+                if (content) content.classList.toggle('hidden', t !== tab);
             });
-            codigoSelect.innerHTML += '<option value="Outros">Outros (Escrever manualmente)</option>';
+            
+            if (tab === 'historico') renderHistory();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
 
-            localSelect.innerHTML = '<option value="">Selecione um local...</option>';
-            availableLocais.forEach(opt => {
-                const el = document.createElement('option');
-                el.value = opt;
-                el.textContent = opt;
-                localSelect.appendChild(el);
+        function switchOcorrenciaType(type) {
+            activeOcorrenciaType = type;
+            localStorage.setItem('traffic_active_ocorrencia_type', type);
+            
+            const types = ['simples', 'especial'];
+            types.forEach(t => {
+                const btn = getEl(`subtab-${t}`);
+                const content = getEl(`content-${t}`);
+                
+                if (btn) {
+                    btn.className = t === type 
+                        ? 'active-subtab flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all'
+                        : 'inactive-subtab flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all';
+                }
+                
+                if (content) content.classList.toggle('hidden', type !== t);
             });
-            localSelect.innerHTML += '<option value="Outros">Outros (Escrever manualmente)</option>';
-
-            // Restore values if they still exist in the new lists
-            if ([...availableCodigos, 'Outros', ''].includes(currentCodigo)) {
-                codigoSelect.value = currentCodigo;
-            }
-            if ([...availableLocais, 'Outros', ''].includes(currentLocal)) {
-                localSelect.value = currentLocal;
-            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         // --- UI ACTIONS ---
@@ -1616,7 +1650,103 @@
         async function handleSaveReport() {
             try {
                 let data = {};
-                if (activeTab === 'simples') {
+                let reportType = activeTab;
+
+                if (activeTab === 'ocorrencias') {
+                    if (activeOcorrenciaType === 'simples') {
+                        reportType = 'simples';
+                        const codigoSelect = getVal('simples-codigo');
+                        const customCodigo = getVal('simples-custom-codigo');
+                        const localSelect = getVal('simples-local');
+                        const customLocal = getVal('simples-custom-local');
+                        const finalCodigo = codigoSelect === 'Outros' ? customCodigo : codigoSelect;
+                        const finalLocal = localSelect === 'Outros' ? customLocal : localSelect;
+
+                        const finalItems = [...simplesList];
+                        if (finalCodigo && finalLocal) finalItems.push({ codigo: finalCodigo, local: finalLocal });
+                        if (finalItems.length === 0) return showToast('Adicione ocorrências.', 'error');
+                        
+                        data = { items: finalItems };
+                    } else if (activeOcorrenciaType === 'especial') {
+                        reportType = 'especial';
+                        const tipo = getVal('especial-tipo');
+                        if (!tipo) return showToast('Selecione o tipo de ocorrência.', 'error');
+
+                        if (tipo === 'Sinistro de trânsito') {
+                            const sinistroData = {
+                                data: getVal('sinistro-data'),
+                                hora: getVal('sinistro-hora'),
+                                numero: getVal('sinistro-numero'),
+                                origem: getVal('sinistro-origem'),
+                                endereco: getVal('sinistro-endereco'),
+                                caracteristica: getVal('sinistro-caracteristica'),
+                                resumo: getVal('sinistro-resumo'),
+                                agentes: (getEl('sinistro-agentes-container')?.children ? Array.from(getEl('sinistro-agentes-container').children) : []).map(div => {
+                                    const id = div.id.split('-').pop();
+                                    const selectVal = getVal(`sinistro-agente-select-${id}`);
+                                    const customVal = getVal(`sinistro-agente-custom-${id}`);
+                                    return selectVal === 'Outros' ? customVal : selectVal;
+                                }).filter(v => v),
+                                vtrs: (getEl('sinistro-vtrs-container')?.children ? Array.from(getEl('sinistro-vtrs-container').children) : []).map(div => {
+                                    const id = div.id.split('-').pop();
+                                    const selectVal = getVal(`sinistro-vtr-select-${id}`);
+                                    const customVal = getVal(`sinistro-vtr-custom-${id}`);
+                                    return selectVal === 'Outros' ? customVal : selectVal;
+                                }).filter(v => v),
+                                photos: sinistroPhotos,
+                                supervisao: getVal('sinistro-supervisao'),
+                                responsavel: getVal('sinistro-responsavel-select') === 'Outros' ? 
+                                             getVal('sinistro-responsavel-custom') : 
+                                             getVal('sinistro-responsavel-select'),
+                                matricula: getVal('sinistro-matricula'),
+                                dataFinal: getVal('sinistro-data-final'),
+                                envolvidos: (getEl('envolvidos-container')?.children ? Array.from(getEl('envolvidos-container').children) : []).map(div => {
+                                    const id = div.id.split('-')[1];
+                                    return {
+                                        tipo: getVal(`envolvido-tipo-${id}`),
+                                        custom: getVal(`envolvido-custom-${id}`),
+                                        placa: getVal(`envolvido-placa-${id}`),
+                                        cnh: getVal(`envolvido-cnh-${id}`)
+                                    };
+                                }),
+                                apoio: (getEl('apoio-container')?.children ? Array.from(getEl('apoio-container').children) : []).map(div => {
+                                    const id = div.id.split('-')[1];
+                                    return {
+                                        tipo: getVal(`apoio-tipo-${id}`),
+                                        prefixo: getVal(`apoio-prefixo-${id}`),
+                                        responsavel: getVal(`apoio-responsavel-${id}`)
+                                    };
+                                }),
+                                socorro: (getEl('socorro-container')?.children ? Array.from(getEl('socorro-container').children) : []).map(div => {
+                                    const id = div.id.split('-')[1];
+                                    return {
+                                        tipo: getVal(`socorro-tipo-${id}`),
+                                        prefixo: getVal(`socorro-prefixo-${id}`),
+                                        responsavel: getVal(`socorro-responsavel-${id}`)
+                                    };
+                                }),
+                                vitimas: (getEl('vitimas-container')?.children ? Array.from(getEl('vitimas-container').children) : []).map(div => {
+                                    const id = div.id.split('-')[1];
+                                    return {
+                                        nome: getVal(`vitima-nome-${id}`),
+                                        sexo: getVal(`vitima-sexo-${id}`),
+                                        estado: getVal(`vitima-estado-${id}`),
+                                        descricao: getVal(`vitima-descricao-${id}`)
+                                    };
+                                })
+                            };
+                            if (!sinistroData.data || !sinistroData.hora || !sinistroData.endereco) {
+                                return showToast('Preencha os campos obrigatórios (Data, Hora, Endereço).', 'error');
+                            }
+                            data = { tipo, ...sinistroData };
+                        } else {
+                            const desc = getVal('especial-descricao');
+                            const loc = getVal('especial-local');
+                            if (!desc || !loc) return showToast('Preencha os campos.', 'error');
+                            data = { tipo, descricao: desc, local: loc };
+                        }
+                    }
+                } else if (activeTab === 'simples') {
                     const codigoSelect = getVal('simples-codigo');
                     const customCodigo = getVal('simples-custom-codigo');
                     const localSelect = getVal('simples-local');
@@ -1629,7 +1759,7 @@
                     if (finalItems.length === 0) return showToast('Adicione ocorrências.', 'error');
                     
                     data = { items: finalItems };
-                } else {
+                } else if (activeTab === 'especial') {
                     const tipo = getVal('especial-tipo');
                     if (!tipo) return showToast('Selecione o tipo de ocorrência.', 'error');
 
@@ -1710,7 +1840,7 @@
 
                 const report = {
                     id: editingId || Math.random().toString(36).substring(2),
-                    type: activeTab,
+                    type: reportType,
                     data: data,
                     agent: agentName,
                     timestamp: Date.now()
@@ -1763,14 +1893,16 @@
                 const date = new Date(r.timestamp).toLocaleDateString('pt-BR');
                 if (!groups[date]) groups[date] = { simples: [], especial: [] };
                 if (r.type === 'simples') groups[date].simples.push(r);
-                else groups[date].especial.push(r);
+                else if (r.type === 'especial') groups[date].especial.push(r);
             });
 
             list.innerHTML = '';
             Object.entries(groups).sort((a,b) => {
                 const [da, ma, ya] = a[0].split('/');
                 const [db, mb, yb] = b[0].split('/');
-                return new Date(`${yb}-${mb}-${db}`) - new Date(`${ya}-${ma}-${da}`);
+                const dateA = new Date(`${ya}-${ma}-${da}`);
+                const dateB = new Date(`${yb}-${mb}-${db}`);
+                return dateB - dateA;
             }).forEach(([date, grp]) => {
                 const dateDiv = document.createElement('div');
                 dateDiv.className = 'space-y-3';
@@ -1781,6 +1913,7 @@
                         <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-slate-800 to-transparent"></div>
                     </div>
                 `;
+
 
                 if (grp.simples.length > 0) {
                     const card = document.createElement('div');
@@ -1867,15 +2000,20 @@
             const r = reports.find(x => x.id === id);
             if (!r) return;
             editingId = id;
-            activeTab = r.type;
-            saveDraft();
-            switchTab(r.type);
+            
+            if (r.type === 'simples' || r.type === 'especial') {
+                switchTab('ocorrencias');
+                switchOcorrenciaType(r.type);
+            } else {
+                switchTab(r.type);
+            }
+
             if (r.type === 'simples') {
                 simplesList = [...r.data.items];
                 renderSimplesList();
                 const indicator = getEl('edit-indicator-simples');
                 if (indicator) indicator.classList.remove('hidden');
-            } else {
+            } else if (r.type === 'especial') {
                 setVal('especial-tipo', r.data.tipo);
                 toggleEspecialFields(); // Ensure fields are shown
                 
@@ -1945,7 +2083,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // --- WHATSAPP ---
         function formatDateBR(dateStr) {
             if (!dateStr) return '---';
             const parts = dateStr.split('-');
@@ -1996,6 +2133,7 @@
 
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
+
 
         function formatSinistroMessage(d) {
             let message = `*RELATÓRIO DE SINISTRO DE TRÂNSITO*\n\n`;
