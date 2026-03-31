@@ -2047,14 +2047,14 @@
             message += `*RESUMO DOS FATOS:* ${d.resumo}\n\n`;
             
             if (Array.isArray(d.agentes) && d.agentes.length > 0) {
-                message += `*AGENTES:* ${d.agentes.join(', ')}\n`;
+                message += `*AGENTES ENVOLVIDOS:* ${d.agentes.join(', ')}\n`;
             }
             if (Array.isArray(d.vtrs) && d.vtrs.length > 0) {
                 message += `*VTR:* ${d.vtrs.join(', ')}\n`;
             }
             
             message += `*SUPERVISÃO:* ${d.supervisao}\n`;
-            message += `*RESPONSÁVEL PELO RELATÓRIO:* ${d.responsavel}\n*MATRÍCULA:* ${d.matricula}\n*DATA:* ${formatDateBR(d.dataFinal)}\n\n`;
+            message += `*RESPONSÁVEL PELO RELATÓRIO:* ${d.responsavel}\n*MATRÍCULA:* ${d.matricula}\n*DATA DO RELATÓRIO:* ${formatDateBR(d.dataFinal)}\n\n`;
             
             if (d.photos && d.photos.length > 0) {
                 message += `*FOTOS:* ${d.photos.length} foto(s) anexada(s).`;
