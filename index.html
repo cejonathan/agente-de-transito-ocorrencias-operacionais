@@ -1961,7 +1961,9 @@
         function editReport(id) {
             const r = reports.find(x => x.id === id);
             if (!r) return;
+            
             editingId = id;
+            localStorage.setItem('traffic_editing_id', id);
             
             switchTab(r.type);
 
@@ -2252,8 +2254,8 @@
             // Fetch image and convert to base64 to avoid CORS issues with html2canvas
             const getBase64Image = async (url) => {
                 try {
-                    // Use allorigins proxy to bypass CORS reliably
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    // Using weserv.nl proxy which is very reliable
+                    const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}&output=webp`;
                     const response = await fetch(proxyUrl);
                     if (!response.ok) throw new Error('Proxy fetch failed');
                     const blob = await response.blob();
@@ -2263,19 +2265,8 @@
                         reader.readAsDataURL(blob);
                     });
                 } catch (e) {
-                    console.warn('Proxy fetch failed, trying direct fetch:', e);
-                    try {
-                        const response = await fetch(url, { mode: 'cors' });
-                        const blob = await response.blob();
-                        return new Promise((resolve) => {
-                            const reader = new FileReader();
-                            reader.onloadend = () => resolve(reader.result);
-                            reader.readAsDataURL(blob);
-                        });
-                    } catch (e2) {
-                        console.error('Direct fetch also failed:', e2);
-                        return null;
-                    }
+                    console.error('Error fetching image:', e);
+                    return null;
                 }
             };
 
@@ -2286,7 +2277,7 @@
             const html = `
                 <div style="padding: 15mm; font-family: 'Inter', sans-serif; color: #000; background: #fff; width: 210mm; min-height: 297mm; box-sizing: border-box; position: relative;">
                     <!-- Header -->
-                    <div style="display: flex; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 25px;">
+                    <div style="display: flex; align-items: center; padding-bottom: 15px; margin-bottom: 25px;">
                         <div style="width: 120px; display: flex; flex-direction: column; justify-content: center;">
                             <div style="font-size: 32px; font-weight: 900; line-height: 1; color: #000; letter-spacing: -2px;">Jacareí</div>
                             <div style="font-size: 9px; font-style: italic; color: #333; margin-top: 2px; white-space: nowrap;">Todo dia, um novo começo</div>
@@ -2383,7 +2374,6 @@
                     <div style="margin-bottom: 40px; font-size: 13px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div><strong>SUPERVISÃO:</strong> ${data.supervisao || '---'}</div>
                         <div><strong>RESPONSÁVEL PELO RELATÓRIO:</strong> ${data.responsavel || '---'}</div>
-                        <div><strong>MATRÍCULA:</strong> ${data.matricula || '---'}</div>
                         <div><strong>DATA DO RELATÓRIO:</strong> ${data.dataRelatorio}</div>
                     </div>
 
