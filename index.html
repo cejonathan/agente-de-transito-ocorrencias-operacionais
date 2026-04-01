@@ -147,24 +147,19 @@
     <main class="max-w-md mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6">
         <!-- Tabs -->
         <div class="flex glass-card p-1.5 rounded-2xl shadow-2xl overflow-x-auto no-scrollbar">
-            <button onclick="switchTab('ocorrencias')" id="tab-ocorrencias" class="active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase">
-                <i data-lucide="clipboard-list" class="w-4 h-4"></i> OCORRÊNCIAS
+            <button onclick="switchTab('simples')" id="tab-simples" class="active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase">
+                <i data-lucide="clipboard-list" class="w-4 h-4"></i> SIMPLES
+            </button>
+            <button onclick="switchTab('especial')" id="tab-especial" class="inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase">
+                <i data-lucide="star" class="w-4 h-4"></i> ESPECIAL
             </button>
             <button onclick="switchTab('historico')" id="tab-historico" class="inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase">
                 <i data-lucide="history" class="w-4 h-4"></i> HISTÓRICO
             </button>
         </div>
 
-        <!-- Ocorrências Container -->
-        <div id="content-ocorrencias" class="space-y-4 sm:space-y-6">
-            <!-- Sub-tabs Ocorrências -->
-            <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-                <button onclick="switchOcorrenciaType('simples')" id="subtab-simples" class="active-subtab flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all">SIMPLES</button>
-                <button onclick="switchOcorrenciaType('especial')" id="subtab-especial" class="inactive-subtab flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all">ESPECIAL</button>
-            </div>
-
-            <!-- Form Simples (Moved inside Ocorrências) -->
-            <div id="content-simples" class="space-y-4 sm:space-y-6">
+        <!-- Form Simples -->
+        <div id="content-simples" class="space-y-4 sm:space-y-6">
             <div class="glass-card rounded-3xl p-4 sm:p-6 shadow-lg space-y-4 sm:space-y-5">
                 <div id="edit-indicator-simples" class="hidden p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center justify-between">
                     <span class="text-xs font-bold text-indigo-600 uppercase tracking-tight flex items-center gap-2">
@@ -461,8 +456,7 @@
         const VTR_CODES = ["AL 1389", "AL 1390", "AL 1393", "AL 1394", "AL 1395", "MH 01", "MH 02", "MH 03", "MH 04", "MH 05", "MH 06", "MH 07", "MH 08"];
 
         // --- STATE ---
-        let activeTab = localStorage.getItem('traffic_active_tab') || 'ocorrencias';
-        let activeOcorrenciaType = localStorage.getItem('traffic_active_ocorrencia_type') || 'simples';
+        let activeTab = localStorage.getItem('traffic_active_tab') || 'simples';
         let reports = JSON.parse(localStorage.getItem('traffic_reports') || '[]');
         let availableCodigos = JSON.parse(localStorage.getItem('traffic_available_codigos') || JSON.stringify(CODIGOS_DEFAULT));
         let availableLocais = JSON.parse(localStorage.getItem('traffic_available_locais') || JSON.stringify(LOCAIS_DEFAULT));
@@ -493,7 +487,6 @@
                 renderResponsavelOptions();
                 loadDraft();
                 switchTab(activeTab);
-                switchOcorrenciaType(activeOcorrenciaType);
 
                 if (typeof lucide !== 'undefined') {
                     lucide.createIcons();
@@ -795,47 +788,6 @@
             });
         }
 
-        function switchTab(tab) {
-            activeTab = tab;
-            localStorage.setItem('traffic_active_tab', tab);
-            
-            const tabs = ['ocorrencias', 'historico'];
-            tabs.forEach(t => {
-                const btn = getEl(`tab-${t}`);
-                const content = getEl(`content-${t}`);
-                if (btn) {
-                    btn.className = t === tab 
-                        ? 'active-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase'
-                        : 'inactive-tab flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-all whitespace-nowrap uppercase';
-                }
-                if (content) content.classList.toggle('hidden', t !== tab);
-            });
-            
-            if (tab === 'historico') renderHistory();
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-
-        function switchOcorrenciaType(type) {
-            activeOcorrenciaType = type;
-            localStorage.setItem('traffic_active_ocorrencia_type', type);
-            
-            const types = ['simples', 'especial'];
-            types.forEach(t => {
-                const btn = getEl(`subtab-${t}`);
-                const content = getEl(`content-${t}`);
-                
-                if (btn) {
-                    btn.className = t === type 
-                        ? 'active-subtab flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all'
-                        : 'inactive-subtab flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all';
-                }
-                
-                if (content) content.classList.toggle('hidden', type !== t);
-            });
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-
-        // --- UI ACTIONS ---
         function switchTab(tab) {
             activeTab = tab;
             localStorage.setItem('traffic_active_tab', tab);
@@ -2303,25 +2255,30 @@
             };
 
             const html = `
-                <div style="padding: 15mm; font-family: 'Inter', sans-serif; color: #000; background: #fff; width: 210mm; min-height: 297mm; box-sizing: border-box;">
+                <div style="padding: 15mm; font-family: 'Inter', sans-serif; color: #000; background: #fff; width: 210mm; min-height: 297mm; box-sizing: border-box; position: relative;">
                     <!-- Header -->
-                    <div style="display: flex; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 25px; position: relative;">
-                        <div style="width: 70px; height: 70px; margin-right: 25px; display: flex; align-items: center; justify-content: center;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 25px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="margin-right: 20px;">
+                                <div style="font-size: 38px; font-weight: 900; line-height: 1; color: #000; letter-spacing: -2px;">Jacareí</div>
+                                <div style="font-size: 10px; font-style: italic; color: #333; margin-top: 2px;">Todo dia, um novo avanço</div>
+                            </div>
+                            <div style="width: 2px; height: 50px; background: #000; margin-right: 20px;"></div>
+                            <div>
+                                <div style="font-size: 16px; font-weight: 800; text-transform: uppercase; line-height: 1.2;">Prefeitura de Jacareí</div>
+                                <div style="font-size: 14px; font-weight: 600; line-height: 1.2;">Secretaria de Mobilidade Urbana</div>
+                            </div>
+                        </div>
+                        <div style="width: 60px; height: 60px;">
                              <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
                                 <path d="M50 5L15 25V75L50 95L85 75V25L50 5Z" stroke="black" stroke-width="4"/>
                                 <path d="M50 20V80M20 40H80M20 60H80" stroke="black" stroke-width="2"/>
                                 <circle cx="50" cy="50" r="10" fill="black"/>
                              </svg>
                         </div>
-                        <div style="flex: 1; border-left: 2px solid #000; padding-left: 20px;">
-                            <div style="font-size: 32px; font-weight: 900; line-height: 1; letter-spacing: -1px;">Jacareí</div>
-                            <div style="font-size: 11px; font-style: italic; margin-bottom: 8px; color: #333;">Todo dia, um novo avanço</div>
-                            <div style="font-size: 16px; font-weight: 800; text-transform: uppercase;">Prefeitura de Jacareí</div>
-                            <div style="font-size: 14px; font-weight: 600;">Secretaria de Mobilidade Urbana</div>
-                        </div>
                     </div>
 
-                    <h1 style="text-align: center; font-size: 20px; font-weight: 900; text-transform: uppercase; margin-bottom: 30px; border: 2px solid #000; padding: 10px;">Relatório de Sinistro de Trânsito</h1>
+                    <h1 style="text-align: center; font-size: 20px; font-weight: 900; text-transform: uppercase; margin-bottom: 30px; border: 2px solid #000; padding: 10px; background: #f8f8f8;">Relatório de Sinistro de Trânsito</h1>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; font-size: 13px;">
                         <div><strong>DATA DO FATO:</strong> ${data.data}</div>
@@ -2340,7 +2297,7 @@
 
                     ${data.vitimas.length > 0 && data.caracteristica === 'Com vítima' ? `
                         <div style="margin-bottom: 20px;">
-                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px;">Vítimas</div>
+                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px; border-left: 4px solid #000;">Vítimas</div>
                             ${data.vitimas.map((v, i) => `
                                 <div style="margin-bottom: 8px; padding: 10px; border: 1px solid #ddd; font-size: 12px;">
                                     <div style="font-weight: 700; margin-bottom: 4px;">Vítima ${i+1}: ${v.nome || '---'}</div>
@@ -2356,7 +2313,7 @@
 
                     ${data.envolvidos.length > 0 ? `
                         <div style="margin-bottom: 20px;">
-                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px;">Envolvidos / Veículos</div>
+                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px; border-left: 4px solid #000;">Envolvidos / Veículos</div>
                             <div style="display: grid; grid-template-columns: 1fr; gap: 5px; font-size: 12px;">
                                 ${data.envolvidos.map((env, i) => `
                                     <div style="padding: 5px; border-bottom: 1px solid #eee;">
@@ -2369,7 +2326,7 @@
 
                     ${data.socorro.length > 0 ? `
                         <div style="margin-bottom: 20px;">
-                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px;">Socorro Médico</div>
+                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px; border-left: 4px solid #000;">Socorro Médico</div>
                             <div style="font-size: 12px;">
                                 ${data.socorro.map(s => `
                                     <div style="margin-bottom: 4px;">• ${s.tipo} ${s.prefixo ? `| VTR: ${s.prefixo}` : ''} ${s.responsavel ? `| RESP: ${s.responsavel}` : ''}</div>
@@ -2380,7 +2337,7 @@
 
                     ${data.apoio.length > 0 ? `
                         <div style="margin-bottom: 20px;">
-                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px;">Apoio Policial</div>
+                            <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px; border-left: 4px solid #000;">Apoio Policial</div>
                             <div style="font-size: 12px;">
                                 ${data.apoio.map(ap => `
                                     <div style="margin-bottom: 4px;">• ${ap.tipo} | VTR: ${ap.prefixo} | RESP: ${ap.responsavel}</div>
@@ -2390,8 +2347,8 @@
                     ` : ''}
 
                     <div style="margin-bottom: 25px;">
-                        <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px;">Resumo dos Fatos</div>
-                        <div style="text-align: justify; line-height: 1.5; font-size: 13px; padding: 10px; border: 1px solid #eee;">${data.resumo || 'Nenhum resumo informado.'}</div>
+                        <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 5px; margin-bottom: 10px; border-left: 4px solid #000;">Resumo dos Fatos</div>
+                        <div style="text-align: justify; line-height: 1.5; font-size: 13px; padding: 10px; border: 1px solid #eee; min-height: 60px;">${data.resumo || 'Nenhum resumo informado.'}</div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; font-size: 13px;">
@@ -2407,7 +2364,7 @@
                     </div>
 
                     <!-- Signature Area -->
-                    <div style="margin-top: 60px; display: flex; flex-direction: column; align-items: center;">
+                    <div style="margin-top: 80px; display: flex; flex-direction: column; align-items: center;">
                         <div style="width: 300px; border-top: 2px solid #000; margin-bottom: 8px;"></div>
                         <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Assinatura do Agente</div>
                         <div style="font-size: 11px; color: #666; margin-top: 4px;">${data.responsavel} - Mat: ${data.matricula}</div>
