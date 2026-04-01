@@ -2252,7 +2252,10 @@
             // Fetch image and convert to base64 to avoid CORS issues with html2canvas
             const getBase64Image = async (url) => {
                 try {
-                    const response = await fetch(url);
+                    // Use allorigins proxy to bypass CORS reliably
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    const response = await fetch(proxyUrl);
+                    if (!response.ok) throw new Error('Proxy fetch failed');
                     const blob = await response.blob();
                     return new Promise((resolve) => {
                         const reader = new FileReader();
@@ -2260,30 +2263,42 @@
                         reader.readAsDataURL(blob);
                     });
                 } catch (e) {
-                    console.error('Error fetching image for PDF:', e);
-                    return null;
+                    console.warn('Proxy fetch failed, trying direct fetch:', e);
+                    try {
+                        const response = await fetch(url, { mode: 'cors' });
+                        const blob = await response.blob();
+                        return new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.readAsDataURL(blob);
+                        });
+                    } catch (e2) {
+                        console.error('Direct fetch also failed:', e2);
+                        return null;
+                    }
                 }
             };
 
+            showToast('Preparando PDF...', 'success');
             const logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Bras%C3%A3o_de_Jacare%C3%AD.png/300px-Bras%C3%A3o_de_Jacare%C3%AD.png';
             const logoBase64 = await getBase64Image(logoUrl);
 
             const html = `
                 <div style="padding: 15mm; font-family: 'Inter', sans-serif; color: #000; background: #fff; width: 210mm; min-height: 297mm; box-sizing: border-box; position: relative;">
                     <!-- Header -->
-                    <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 25px;">
-                        <div style="display: flex; flex-direction: column;">
-                            <div style="font-size: 38px; font-weight: 900; line-height: 1; color: #000; letter-spacing: -2px;">Jacareí</div>
-                            <div style="font-size: 10px; font-style: italic; color: #333; margin-top: 2px;">Todo dia, um novo começo</div>
+                    <div style="display: flex; align-items: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 25px;">
+                        <div style="width: 120px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 32px; font-weight: 900; line-height: 1; color: #000; letter-spacing: -2px;">Jacareí</div>
+                            <div style="font-size: 9px; font-style: italic; color: #333; margin-top: 2px; white-space: nowrap;">Todo dia, um novo começo</div>
                         </div>
                         
-                        <div style="text-align: center;">
+                        <div style="flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: center;">
                             <div style="font-size: 15px; font-weight: 800; text-transform: uppercase; line-height: 1.2;">Prefeitura de Jacareí</div>
                             <div style="font-size: 13px; font-weight: 600; line-height: 1.2;">Secretaria de Mobilidade Urbana</div>
                         </div>
 
-                        <div style="display: flex; justify-content: flex-end;">
-                             ${logoBase64 ? `<img src="${logoBase64}" style="width: 80px; height: 80px; object-fit: contain;">` : '<div style="width: 80px; height: 80px; border: 1px dashed #ccc;"></div>'}
+                        <div style="width: 120px; display: flex; justify-content: flex-end; align-items: center;">
+                             ${logoBase64 ? `<img src="${logoBase64}" style="width: 75px; height: 75px; object-fit: contain;">` : '<div style="width: 75px; height: 75px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #ccc;">LOGO</div>'}
                         </div>
                     </div>
 
