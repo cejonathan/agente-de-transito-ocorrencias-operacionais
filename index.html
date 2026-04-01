@@ -2253,25 +2253,31 @@
 
             // Fetch image and convert to base64 to avoid CORS issues with html2canvas
             const getBase64Image = async (url) => {
-                try {
-                    // Using weserv.nl proxy which is very reliable
-                    const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}&output=webp`;
-                    const response = await fetch(proxyUrl);
-                    if (!response.ok) throw new Error('Proxy fetch failed');
-                    const blob = await response.blob();
-                    return new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.readAsDataURL(blob);
-                    });
-                } catch (e) {
-                    console.error('Error fetching image:', e);
-                    return null;
+                const proxies = [
+                    (u) => `https://images.weserv.nl/?url=${encodeURIComponent(u)}&output=webp`,
+                    (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`
+                ];
+
+                for (const getProxyUrl of proxies) {
+                    try {
+                        const response = await fetch(getProxyUrl(url));
+                        if (!response.ok) continue;
+                        const blob = await response.blob();
+                        return await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.readAsDataURL(blob);
+                        });
+                    } catch (e) {
+                        console.warn('Proxy failed, trying next...', e);
+                    }
                 }
+                console.error('All proxies failed to fetch image');
+                return null;
             };
 
             showToast('Preparando PDF...', 'success');
-            const logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Bras%C3%A3o_de_Jacare%C3%AD.png/300px-Bras%C3%A3o_de_Jacare%C3%AD.png';
+            const logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/1/16/Bras%C3%A3o_do_Municipio_de_Jacare%C3%AD-SP.png';
             const logoBase64 = await getBase64Image(logoUrl);
 
             const html = `
