@@ -601,12 +601,7 @@
                         }),
                         vitimas: (getEl('vitimas-container')?.children ? Array.from(getEl('vitimas-container').children) : []).map(div => {
                             const id = div.id.split('-')[1];
-                            return {
-                                nome: getVal(`vitima-nome-${id}`),
-                                sexo: getVal(`vitima-sexo-${id}`),
-                                estado: getVal(`vitima-estado-${id}`),
-                                descricao: getVal(`vitima-descricao-${id}`)
-                            };
+                            return getVitimaData(id);
                         })
                     },
                     activeTab: activeTab,
@@ -1014,6 +1009,59 @@
             saveDraft();
         }
 
+        function toggleVitimaManual(id, field) {
+            const select = document.getElementById(`vitima-${field}-select-${id}`);
+            const manualContainer = document.getElementById(`vitima-${field}-manual-container-${id}`);
+            if (select.value === 'Escrever manualmente') {
+                manualContainer.classList.remove('hidden');
+            } else {
+                manualContainer.classList.add('hidden');
+            }
+            saveDraft();
+        }
+
+        function getVitimaData(id) {
+            const getValFromSelect = (field) => {
+                const sel = getVal(`vitima-${field}-select-${id}`);
+                if (sel === 'Escrever manualmente') return getVal(`vitima-${field}-manual-${id}`);
+                return sel;
+            };
+
+            return {
+                nome: getValFromSelect('nome'),
+                sexo: getVal(`vitima-sexo-${id}`),
+                estado: getValFromSelect('estado'),
+                descricao: getValFromSelect('descricao')
+            };
+        }
+
+        function setVitimaValues(id, data) {
+            const setValForSelect = (field, value) => {
+                const select = document.getElementById(`vitima-${field}-select-${id}`);
+                const manualInput = document.getElementById(`vitima-${field}-manual-${id}`);
+                const manualContainer = document.getElementById(`vitima-${field}-manual-container-${id}`);
+
+                if (!value) {
+                    select.value = '';
+                    return;
+                }
+
+                const options = Array.from(select.options).map(o => o.value);
+                if (options.includes(value)) {
+                    select.value = value;
+                } else {
+                    select.value = 'Escrever manualmente';
+                    if (manualInput) manualInput.value = value;
+                    if (manualContainer) manualContainer.classList.remove('hidden');
+                }
+            };
+
+            setValForSelect('nome', data.nome);
+            setVal(`vitima-sexo-${id}`, data.sexo || '');
+            setValForSelect('estado', data.estado);
+            setValForSelect('descricao', data.descricao);
+        }
+
         function addVitima(data = null) {
             vitimasCount++;
             const container = document.getElementById('vitimas-container');
@@ -1024,10 +1072,19 @@
             const id = vitimasCount;
             div.innerHTML = `
                 <button onclick="removeVitima(${id})" class="absolute top-2 right-2 text-slate-400 hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+                
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Nome da Vítima</label>
-                    <input type="text" id="vitima-nome-${id}" placeholder="Nome completo..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                    <select id="vitima-nome-select-${id}" onchange="toggleVitimaManual(${id}, 'nome')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <option value="">Selecionar...</option>
+                        <option value="Sem informação">Sem informação</option>
+                        <option value="Escrever manualmente">Escrever manualmente</option>
+                    </select>
+                    <div id="vitima-nome-manual-container-${id}" class="hidden mt-2">
+                        <input type="text" id="vitima-nome-manual-${id}" placeholder="Nome completo..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                    </div>
                 </div>
+
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-2">
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Sexo</label>
@@ -1039,26 +1096,36 @@
                     </div>
                     <div class="space-y-2">
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Estado da Vítima</label>
-                        <select id="vitima-estado-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <select id="vitima-estado-select-${id}" onchange="toggleVitimaManual(${id}, 'estado')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
                             <option value="">Selecionar...</option>
                             <option value="Leve">Leve</option>
                             <option value="Grave">Grave</option>
                             <option value="Gravíssimo">Gravíssimo</option>
                             <option value="Óbito">Óbito</option>
+                            <option value="Sem informação">Sem informação</option>
+                            <option value="Escrever manualmente">Escrever manualmente</option>
                         </select>
+                        <div id="vitima-estado-manual-container-${id}" class="hidden mt-2">
+                            <input type="text" id="vitima-estado-manual-${id}" placeholder="Descrever estado..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        </div>
                     </div>
                 </div>
+
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Descrição do Estado</label>
-                    <textarea id="vitima-descricao-${id}" placeholder="Detalhes sobre o estado da vítima..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm" rows="2"></textarea>
+                    <select id="vitima-descricao-select-${id}" onchange="toggleVitimaManual(${id}, 'descricao')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <option value="">Selecionar...</option>
+                        <option value="Sem informação">Sem informação</option>
+                        <option value="Escrever manualmente">Escrever manualmente</option>
+                    </select>
+                    <div id="vitima-descricao-manual-container-${id}" class="hidden mt-2">
+                        <textarea id="vitima-descricao-manual-${id}" placeholder="Detalhes sobre o estado da vítima..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm" rows="2"></textarea>
+                    </div>
                 </div>
             `;
             container.appendChild(div);
             if (data) {
-                document.getElementById(`vitima-nome-${id}`).value = data.nome || '';
-                document.getElementById(`vitima-sexo-${id}`).value = data.sexo || '';
-                document.getElementById(`vitima-estado-${id}`).value = data.estado || '';
-                document.getElementById(`vitima-descricao-${id}`).value = data.descricao || '';
+                setVitimaValues(id, data);
             }
             lucide.createIcons();
             saveDraft();
@@ -1710,12 +1777,7 @@
                                 }),
                                 vitimas: (getEl('vitimas-container')?.children ? Array.from(getEl('vitimas-container').children) : []).map(div => {
                                     const id = div.id.split('-')[1];
-                                    return {
-                                        nome: getVal(`vitima-nome-${id}`),
-                                        sexo: getVal(`vitima-sexo-${id}`),
-                                        estado: getVal(`vitima-estado-${id}`),
-                                        descricao: getVal(`vitima-descricao-${id}`)
-                                    };
+                                    return getVitimaData(id);
                                 })
                             };
                             if (!sinistroData.data || !sinistroData.hora || !sinistroData.endereco) {
@@ -1807,12 +1869,7 @@
                             }),
                             vitimas: (getEl('vitimas-container')?.children ? Array.from(getEl('vitimas-container').children) : []).map(div => {
                                 const id = div.id.split('-')[1];
-                                return {
-                                    nome: getVal(`vitima-nome-${id}`),
-                                    sexo: getVal(`vitima-sexo-${id}`),
-                                    estado: getVal(`vitima-estado-${id}`),
-                                    descricao: getVal(`vitima-descricao-${id}`)
-                                };
+                                return getVitimaData(id);
                             })
                         };
                         if (!sinistroData.data || !sinistroData.hora || !sinistroData.endereco) {
@@ -2277,12 +2334,7 @@
                 }),
                 vitimas: Array.from(getEl('vitimas-container').children).map(div => {
                     const id = div.id.split('-')[1];
-                    return {
-                        nome: getVal(`vitima-nome-${id}`),
-                        sexo: getVal(`vitima-sexo-${id}`),
-                        estado: getVal(`vitima-estado-${id}`),
-                        descricao: getVal(`vitima-descricao-${id}`)
-                    };
+                    return getVitimaData(id);
                 })
             };
 
@@ -2336,7 +2388,9 @@
                         </div>
                     </div>
  
-                    <h1 style="text-align: center; font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; border: 2px solid #000; background: #f8f8f8; height: 45px; line-height: 45px; padding: 0;">Relatório de Sinistro de Trânsito</h1>
+                    <div style="display: table; width: 100%; height: 45px; border: 2px solid #000; background: #f8f8f8; margin-bottom: 15px; text-align: center;">
+                        <h1 style="display: table-cell; vertical-align: middle; font-size: 18px; font-weight: 900; text-transform: uppercase; margin: 0; padding: 0;">Relatório de Sinistro de Trânsito</h1>
+                    </div>
  
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; font-size: 12px;">
                         <div><strong>DATA DO FATO:</strong> ${data.data}</div>
@@ -2355,7 +2409,9 @@
  
                     ${data.vitimas.length > 0 && data.caracteristica === 'Com vítima' ? `
                         <div style="margin-bottom: 15px;">
-                            <div style="font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; border-left: 4px solid #000; height: 28px; line-height: 28px; padding: 0 10px; margin-bottom: 8px;">Vítimas</div>
+                            <div style="display: table; width: 100%; height: 28px; background: #eee; border-left: 4px solid #000; margin-bottom: 8px;">
+                                <div style="display: table-cell; vertical-align: middle; padding-left: 10px; font-size: 13px; font-weight: 900; text-transform: uppercase;">Vítimas</div>
+                            </div>
                             ${data.vitimas.map((v, i) => `
                                 <div style="margin-bottom: 5px; padding: 8px; border: 1px solid #ddd; font-size: 11px;">
                                     <div style="font-weight: 700; margin-bottom: 3px;">Vítima ${i+1}: ${v.nome || '---'}</div>
@@ -2371,7 +2427,9 @@
  
                     ${data.envolvidos.length > 0 ? `
                         <div style="margin-bottom: 15px;">
-                            <div style="font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; border-left: 4px solid #000; height: 28px; line-height: 28px; padding: 0 10px; margin-bottom: 8px;">Envolvidos / Veículos</div>
+                            <div style="display: table; width: 100%; height: 28px; background: #eee; border-left: 4px solid #000; margin-bottom: 8px;">
+                                <div style="display: table-cell; vertical-align: middle; padding-left: 10px; font-size: 13px; font-weight: 900; text-transform: uppercase;">Envolvidos / Veículos</div>
+                            </div>
                             <div style="display: grid; grid-template-columns: 1fr; gap: 3px; font-size: 11px;">
                                 ${data.envolvidos.map((env, i) => `
                                     <div style="padding: 3px; border-bottom: 1px solid #eee;">
@@ -2384,7 +2442,9 @@
  
                     ${data.socorro.length > 0 ? `
                         <div style="margin-bottom: 15px;">
-                            <div style="font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; border-left: 4px solid #000; height: 28px; line-height: 28px; padding: 0 10px; margin-bottom: 8px;">Socorro Médico</div>
+                            <div style="display: table; width: 100%; height: 28px; background: #eee; border-left: 4px solid #000; margin-bottom: 8px;">
+                                <div style="display: table-cell; vertical-align: middle; padding-left: 10px; font-size: 13px; font-weight: 900; text-transform: uppercase;">Socorro Médico</div>
+                            </div>
                             <div style="font-size: 11px;">
                                 ${data.socorro.map(s => `
                                     <div style="margin-bottom: 3px;">• ${s.tipo} ${s.prefixo ? `| VTR: ${s.prefixo}` : ''} ${s.responsavel ? `| RESP: ${s.responsavel}` : ''}</div>
@@ -2395,7 +2455,9 @@
  
                     ${data.apoio.length > 0 ? `
                         <div style="margin-bottom: 15px;">
-                            <div style="font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; border-left: 4px solid #000; height: 28px; line-height: 28px; padding: 0 10px; margin-bottom: 8px;">Apoio Policial</div>
+                            <div style="display: table; width: 100%; height: 28px; background: #eee; border-left: 4px solid #000; margin-bottom: 8px;">
+                                <div style="display: table-cell; vertical-align: middle; padding-left: 10px; font-size: 13px; font-weight: 900; text-transform: uppercase;">Apoio Policial</div>
+                            </div>
                             <div style="font-size: 11px;">
                                 ${data.apoio.map(ap => `
                                     <div style="margin-bottom: 3px;">• ${ap.tipo} ${ap.prefixo ? `| VTR: ${ap.prefixo}` : ''} ${ap.responsavel ? `| RESP: ${ap.responsavel}` : ''}</div>
@@ -2405,7 +2467,9 @@
                     ` : ''}
  
                     <div style="margin-bottom: 15px; flex-grow: 1;">
-                        <div style="font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; border-left: 4px solid #000; height: 28px; line-height: 28px; padding: 0 10px; margin-bottom: 8px;">Resumo dos Fatos</div>
+                        <div style="display: table; width: 100%; height: 28px; background: #eee; border-left: 4px solid #000; margin-bottom: 8px;">
+                            <div style="display: table-cell; vertical-align: middle; padding-left: 10px; font-size: 13px; font-weight: 900; text-transform: uppercase;">Resumo dos Fatos</div>
+                        </div>
                         <div style="text-align: justify; line-height: 1.4; font-size: 12px; padding: 8px; border: 1px solid #eee; min-height: 50px;">${data.resumo || 'Nenhum resumo informado.'}</div>
                     </div>
  
