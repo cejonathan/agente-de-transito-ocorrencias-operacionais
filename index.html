@@ -2334,7 +2334,7 @@
                         </div>
                     </div>
  
-                    <h1 style="display: flex; align-items: center; font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; border: 2px solid #000; padding: 0 15px; background: #f8f8f8; min-height: 45px;">Relatório de Sinistro de Trânsito</h1>
+                    <h1 style="display: flex; align-items: center; justify-content: center; text-align: center; font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; border: 2px solid #000; padding: 0 15px; background: #f8f8f8; min-height: 45px;">Relatório de Sinistro de Trânsito</h1>
  
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; font-size: 12px;">
                         <div><strong>DATA DO FATO:</strong> ${data.data}</div>
@@ -2414,7 +2414,6 @@
  
                     <div style="margin-bottom: 25px; font-size: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <div><strong>SUPERVISÃO:</strong> ${data.supervisao || '---'}</div>
-                        <div><strong>RESPONSÁVEL PELO RELATÓRIO:</strong> ${data.responsavel || '---'}</div>
                         <div><strong>DATA DO RELATÓRIO:</strong> ${data.dataRelatorio}</div>
                     </div>
  
@@ -2423,11 +2422,6 @@
                         <div style="width: 250px; border-top: 2px solid #000; margin-bottom: 5px;"></div>
                         <div style="font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Assinatura do Agente</div>
                         <div style="font-size: 10px; color: #666; margin-top: 2px;">${data.responsavel || '---'}</div>
-                    </div>
- 
-                    <!-- Footer Info -->
-                    <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 8px; font-size: 9px; color: #999; text-align: center;">
-                        Relatório gerado via Sistema de Registro Operacional - Jacareí
                     </div>
                 </div>
             `;
