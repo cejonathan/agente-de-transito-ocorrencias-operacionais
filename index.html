@@ -2334,7 +2334,7 @@
                         </div>
                     </div>
  
-                    <h1 style="text-align: center; font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; border: 2px solid #000; padding: 8px; background: #f8f8f8;">Relatório de Sinistro de Trânsito</h1>
+                    <h1 style="display: flex; align-items: center; font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; border: 2px solid #000; padding: 0 15px; background: #f8f8f8; min-height: 45px;">Relatório de Sinistro de Trânsito</h1>
  
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; font-size: 12px;">
                         <div><strong>DATA DO FATO:</strong> ${data.data}</div>
@@ -2353,7 +2353,7 @@
  
                     ${data.vitimas.length > 0 && data.caracteristica === 'Com vítima' ? `
                         <div style="margin-bottom: 15px;">
-                            <div style="display: flex; align-items: center; font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 4px 10px; margin-bottom: 8px; border-left: 4px solid #000; min-height: 24px;">Vítimas</div>
+                            <div style="display: flex; align-items: center; font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 0 10px; margin-bottom: 8px; border-left: 4px solid #000; min-height: 28px;">Vítimas</div>
                             ${data.vitimas.map((v, i) => `
                                 <div style="margin-bottom: 5px; padding: 8px; border: 1px solid #ddd; font-size: 11px;">
                                     <div style="font-weight: 700; margin-bottom: 3px;">Vítima ${i+1}: ${v.nome || '---'}</div>
@@ -2369,7 +2369,7 @@
  
                     ${data.envolvidos.length > 0 ? `
                         <div style="margin-bottom: 15px;">
-                            <div style="display: flex; align-items: center; font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 4px 10px; margin-bottom: 8px; border-left: 4px solid #000; min-height: 24px;">Envolvidos / Veículos</div>
+                            <div style="display: flex; align-items: center; font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 0 10px; margin-bottom: 8px; border-left: 4px solid #000; min-height: 28px;">Envolvidos / Veículos</div>
                             <div style="display: grid; grid-template-columns: 1fr; gap: 3px; font-size: 11px;">
                                 ${data.envolvidos.map((env, i) => `
                                     <div style="padding: 3px; border-bottom: 1px solid #eee;">
@@ -2382,7 +2382,7 @@
  
                     ${data.socorro.length > 0 ? `
                         <div style="margin-bottom: 15px;">
-                            <div style="display: flex; align-items: center; font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 4px 10px; margin-bottom: 8px; border-left: 4px solid #000; min-height: 24px;">Socorro Médico</div>
+                            <div style="display: flex; align-items: center; font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 0 10px; margin-bottom: 8px; border-left: 4px solid #000; min-height: 28px;">Socorro Médico</div>
                             <div style="font-size: 11px;">
                                 ${data.socorro.map(s => `
                                     <div style="margin-bottom: 3px;">• ${s.tipo} ${s.prefixo ? `| VTR: ${s.prefixo}` : ''} ${s.responsavel ? `| RESP: ${s.responsavel}` : ''}</div>
@@ -2393,17 +2393,17 @@
  
                     ${data.apoio.length > 0 ? `
                         <div style="margin-bottom: 15px;">
-                            <div style="display: flex; align-items: center; font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 4px 10px; margin-bottom: 8px; border-left: 4px solid #000; min-height: 24px;">Apoio Policial</div>
+                            <div style="display: flex; align-items: center; font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 0 10px; margin-bottom: 8px; border-left: 4px solid #000; min-height: 28px;">Apoio Policial</div>
                             <div style="font-size: 11px;">
                                 ${data.apoio.map(ap => `
-                                    <div style="margin-bottom: 3px;">• ${ap.tipo} | VTR: ${ap.prefixo} | RESP: ${ap.responsavel}</div>
+                                    <div style="margin-bottom: 3px;">• ${ap.tipo} ${ap.prefixo ? `| VTR: ${ap.prefixo}` : ''} ${ap.responsavel ? `| RESP: ${ap.responsavel}` : ''}</div>
                                 `).join('')}
                             </div>
                         </div>
                     ` : ''}
  
                     <div style="margin-bottom: 15px; flex-grow: 1;">
-                        <div style="display: flex; align-items: center; font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 4px 10px; margin-bottom: 8px; border-left: 4px solid #000; min-height: 24px;">Resumo dos Fatos</div>
+                        <div style="display: flex; align-items: center; font-size: 13px; font-weight: 900; text-transform: uppercase; background: #eee; padding: 0 10px; margin-bottom: 8px; border-left: 4px solid #000; min-height: 28px;">Resumo dos Fatos</div>
                         <div style="text-align: justify; line-height: 1.4; font-size: 12px; padding: 8px; border: 1px solid #eee; min-height: 50px;">${data.resumo || 'Nenhum resumo informado.'}</div>
                     </div>
  
