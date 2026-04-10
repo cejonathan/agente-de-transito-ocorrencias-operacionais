@@ -2148,7 +2148,7 @@
             const reportAgent = r.agent || agentName;
             const reportDate = new Date(r.timestamp).toLocaleDateString('pt-BR');
             if (r.type === 'simples') {
-                message = formatSimplesMessage(r.data.items, reportAgent, reportDate);
+                message = formatSimplesMessage(r.data.items, reportAgent, reportDate, r.data.horaInicial, r.data.horaFinal);
             } else {
                 if (r.data.tipo === 'Sinistro de trânsito') {
                     message = formatSinistroMessage(r.data);
@@ -2255,11 +2255,16 @@
         function sendWhatsAppBulk(date) {
             const dayReports = reports.filter(r => new Date(r.timestamp).toLocaleDateString('pt-BR') === date && r.type === 'simples');
             const allItems = dayReports.flatMap(r => r.data.items);
-            const message = formatSimplesMessage(allItems, agentName, date);
+            
+            // For bulk, we might have multiple time ranges, so we don't show a specific one unless it's just one report
+            const hIni = dayReports.length === 1 ? dayReports[0].data.horaInicial : null;
+            const hFin = dayReports.length === 1 ? dayReports[0].data.horaFinal : null;
+            
+            const message = formatSimplesMessage(allItems, agentName, date, hIni, hFin);
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
-        function formatSimplesMessage(items, name, date = null) {
+        function formatSimplesMessage(items, name, date = null, horaInicial = null, horaFinal = null) {
             const currentAgent = name || agentName;
             const grouped = {};
             items.forEach(it => {
@@ -2268,6 +2273,9 @@
             });
             let msg = `*REGISTRO DE OCORRÊNCIAS*\n*AGENTE:* ${currentAgent}\n`;
             if (date) msg += `*DATA:* ${date}\n`;
+            if (horaInicial || horaFinal) {
+                msg += `*HORÁRIO:* ${horaInicial || '--:--'} às ${horaFinal || '--:--'}\n`;
+            }
             msg += `\n*OCORRÊNCIAS SIMPLES*\n`;
             Object.keys(grouped).forEach(cod => {
                 msg += `\n*CÓDIGO:* ${cod}\n*LOCAIS:*`;
