@@ -2354,13 +2354,36 @@
 
         function sendWhatsAppBulk(date) {
             const dayReports = reports.filter(r => new Date(r.timestamp).toLocaleDateString('pt-BR') === date && r.type === 'simples');
-            const allItems = dayReports.flatMap(r => r.data.items);
             
-            // For bulk, we might have multiple time ranges, so we don't show a specific one unless it's just one report
-            const hIni = dayReports.length === 1 ? dayReports[0].data.horaInicial : null;
-            const hFin = dayReports.length === 1 ? dayReports[0].data.horaFinal : null;
+            let message = `*REGISTRO DE OCORRÊNCIAS*\n*AGENTE:* ${agentName}\n*DATA:* ${date}\n\n*OCORRÊNCIAS SIMPLES*\n`;
             
-            const message = formatSimplesMessage(allItems, agentName, date, hIni, hFin);
+            const timeGroups = {};
+            dayReports.forEach(r => {
+                const reportTime = new Date(r.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const hIni = r.data.horaInicial || reportTime;
+                const hFin = r.data.horaFinal || '--:--';
+                const timeKey = `${hIni} às ${hFin}`;
+                
+                if (!timeGroups[timeKey]) timeGroups[timeKey] = [];
+                timeGroups[timeKey].push(...r.data.items);
+            });
+
+            Object.keys(timeGroups).sort().forEach(timeKey => {
+                message += `\n*HORÁRIO:* ${timeKey}\n`;
+                const items = timeGroups[timeKey];
+                const grouped = {};
+                items.forEach(it => {
+                    if (!grouped[it.codigo]) grouped[it.codigo] = [];
+                    grouped[it.codigo].push(it.local);
+                });
+                
+                Object.keys(grouped).forEach(cod => {
+                    message += `*CÓDIGO:* ${cod}\n*LOCAIS:*`;
+                    grouped[cod].forEach(loc => message += `\n- ${loc}`);
+                    message += `\n`;
+                });
+            });
+            
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
