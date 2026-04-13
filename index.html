@@ -291,13 +291,18 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-500 uppercase">Origem</label>
-                            <select id="sinistro-origem" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
+                            <select id="sinistro-origem" onchange="toggleSinistroOrigemCustom()" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
                                 <option value="">Selecionar...</option>
                                 <option value="Fiscalização de rotina">Fiscalização de rotina</option>
                                 <option value="COTRAN">COTRAN</option>
                                 <option value="COI">COI</option>
                                 <option value="CECOM">CECOM</option>
+                                <option value="Solicitação de munícipe">Solicitação de munícipe</option>
+                                <option value="Outros">Outros</option>
                             </select>
+                            <div id="sinistro-origem-custom-container" class="hidden mt-2">
+                                <input type="text" id="sinistro-origem-custom" placeholder="Especificar origem..." class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 text-slate-900">
+                            </div>
                         </div>
                     </div>
 
@@ -553,6 +558,7 @@
                         hora: getVal('sinistro-hora'),
                         numero: getVal('sinistro-numero'),
                         origem: getVal('sinistro-origem'),
+                        origemCustom: getVal('sinistro-origem-custom'),
                         endereco: getVal('sinistro-endereco'),
                         caracteristica: getVal('sinistro-caracteristica'),
                         resumo: getVal('sinistro-resumo'),
@@ -675,6 +681,8 @@
                     setVal('sinistro-hora', draft.sinistro.hora || '');
                     setVal('sinistro-numero', draft.sinistro.numero || '');
                     setVal('sinistro-origem', draft.sinistro.origem || '');
+                    setVal('sinistro-origem-custom', draft.sinistro.origemCustom || '');
+                    toggleSinistroOrigemCustom();
                     setVal('sinistro-endereco', draft.sinistro.endereco || '');
                     setVal('sinistro-caracteristica', draft.sinistro.caracteristica || '');
                     setVal('sinistro-resumo', draft.sinistro.resumo || '');
@@ -1009,6 +1017,15 @@
             saveDraft();
         }
 
+        function toggleSinistroOrigemCustom() {
+            const select = getEl('sinistro-origem');
+            const container = getEl('sinistro-origem-custom-container');
+            if (select && container) {
+                container.classList.toggle('hidden', select.value !== 'Outros');
+            }
+            saveDraft();
+        }
+
         function toggleVitimaManual(id, field) {
             const select = document.getElementById(`vitima-${field}-select-${id}`);
             const manualContainer = document.getElementById(`vitima-${field}-manual-container-${id}`);
@@ -1029,7 +1046,7 @@
 
             return {
                 nome: getValFromSelect('nome'),
-                sexo: getVal(`vitima-sexo-${id}`),
+                sexo: getValFromSelect('sexo'),
                 estado: getValFromSelect('estado'),
                 descricao: getValFromSelect('descricao')
             };
@@ -1057,7 +1074,7 @@
             };
 
             setValForSelect('nome', data.nome);
-            setVal(`vitima-sexo-${id}`, data.sexo || '');
+            setValForSelect('sexo', data.sexo);
             setValForSelect('estado', data.estado);
             setValForSelect('descricao', data.descricao);
         }
@@ -1077,7 +1094,7 @@
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Nome da Vítima</label>
                     <select id="vitima-nome-select-${id}" onchange="toggleVitimaManual(${id}, 'nome')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
                         <option value="">Selecionar...</option>
-                        <option value="Sem informação">Sem informação</option>
+                        <option value="SEM INFORMAÇÃO">SEM INFORMAÇÃO</option>
                         <option value="Escrever manualmente">Escrever manualmente</option>
                     </select>
                     <div id="vitima-nome-manual-container-${id}" class="hidden mt-2">
@@ -1088,11 +1105,16 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-2">
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Sexo</label>
-                        <select id="vitima-sexo-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <select id="vitima-sexo-select-${id}" onchange="toggleVitimaManual(${id}, 'sexo')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
                             <option value="">Selecionar...</option>
                             <option value="Masculino">Masculino</option>
                             <option value="Feminino">Feminino</option>
+                            <option value="SEM INFORMAÇÃO">SEM INFORMAÇÃO</option>
+                            <option value="Escrever manualmente">Escrever manualmente</option>
                         </select>
+                        <div id="vitima-sexo-manual-container-${id}" class="hidden mt-2">
+                            <input type="text" id="vitima-sexo-manual-${id}" placeholder="Descrever sexo..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        </div>
                     </div>
                     <div class="space-y-2">
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Estado da Vítima</label>
@@ -1102,7 +1124,7 @@
                             <option value="Grave">Grave</option>
                             <option value="Gravíssimo">Gravíssimo</option>
                             <option value="Óbito">Óbito</option>
-                            <option value="Sem informação">Sem informação</option>
+                            <option value="SEM INFORMAÇÃO">SEM INFORMAÇÃO</option>
                             <option value="Escrever manualmente">Escrever manualmente</option>
                         </select>
                         <div id="vitima-estado-manual-container-${id}" class="hidden mt-2">
@@ -1115,7 +1137,7 @@
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Descrição do Estado</label>
                     <select id="vitima-descricao-select-${id}" onchange="toggleVitimaManual(${id}, 'descricao')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
                         <option value="">Selecionar...</option>
-                        <option value="Sem informação">Sem informação</option>
+                        <option value="SEM INFORMAÇÃO">SEM INFORMAÇÃO</option>
                         <option value="Escrever manualmente">Escrever manualmente</option>
                     </select>
                     <div id="vitima-descricao-manual-container-${id}" class="hidden mt-2">
@@ -1727,7 +1749,7 @@
                                 data: getVal('sinistro-data'),
                                 hora: getVal('sinistro-hora'),
                                 numero: getVal('sinistro-numero'),
-                                origem: getVal('sinistro-origem'),
+                                origem: getVal('sinistro-origem') === 'Outros' ? getVal('sinistro-origem-custom') : getVal('sinistro-origem'),
                                 endereco: getVal('sinistro-endereco'),
                                 caracteristica: getVal('sinistro-caracteristica'),
                                 resumo: getVal('sinistro-resumo'),
@@ -1819,7 +1841,7 @@
                             data: getVal('sinistro-data'),
                             hora: getVal('sinistro-hora'),
                             numero: getVal('sinistro-numero'),
-                            origem: getVal('sinistro-origem'),
+                            origem: getVal('sinistro-origem') === 'Outros' ? getVal('sinistro-origem-custom') : getVal('sinistro-origem'),
                             endereco: getVal('sinistro-endereco'),
                             caracteristica: getVal('sinistro-caracteristica'),
                             resumo: getVal('sinistro-resumo'),
@@ -2073,7 +2095,21 @@
                     setVal('sinistro-data', d.data || '');
                     setVal('sinistro-hora', d.hora || '');
                     setVal('sinistro-numero', d.numero || '');
-                    setVal('sinistro-origem', d.origem || 'Fiscalização de rotina');
+                    
+                    if (d.origem) {
+                        const selectEl = getEl('sinistro-origem');
+                        if (selectEl) {
+                            const options = Array.from(selectEl.options).map(o => o.value);
+                            if (options.includes(d.origem)) {
+                                setVal('sinistro-origem', d.origem);
+                            } else {
+                                setVal('sinistro-origem', 'Outros');
+                                setVal('sinistro-origem-custom', d.origem);
+                            }
+                            toggleSinistroOrigemCustom();
+                        }
+                    }
+
                     setVal('sinistro-endereco', d.endereco || '');
                     setVal('sinistro-caracteristica', d.caracteristica || '');
                     setVal('sinistro-resumo', d.resumo || '');
@@ -2298,7 +2334,7 @@
                 data: formatDateBR(getVal('sinistro-data')),
                 hora: getVal('sinistro-hora'),
                 numero: getVal('sinistro-numero'),
-                origem: getVal('sinistro-origem'),
+                origem: getVal('sinistro-origem') === 'Outros' ? getVal('sinistro-origem-custom') : getVal('sinistro-origem'),
                 endereco: getVal('sinistro-endereco'),
                 caracteristica: getVal('sinistro-caracteristica'),
                 resumo: getVal('sinistro-resumo'),
