@@ -591,19 +591,11 @@
                         }),
                         apoio: (getEl('apoio-container')?.children ? Array.from(getEl('apoio-container').children) : []).map(div => {
                             const id = div.id.split('-')[1];
-                            return {
-                                tipo: getVal(`apoio-tipo-${id}`),
-                                prefixo: getVal(`apoio-prefixo-${id}`),
-                                responsavel: getVal(`apoio-responsavel-${id}`)
-                            };
+                            return getSectionData(id, 'apoio', ['tipo', 'prefixo', 'responsavel']);
                         }),
                         socorro: (getEl('socorro-container')?.children ? Array.from(getEl('socorro-container').children) : []).map(div => {
                             const id = div.id.split('-')[1];
-                            return {
-                                tipo: getVal(`socorro-tipo-${id}`),
-                                prefixo: getVal(`socorro-prefixo-${id}`),
-                                responsavel: getVal(`socorro-responsavel-${id}`)
-                            };
+                            return getSectionData(id, 'socorro', ['tipo', 'prefixo', 'responsavel']);
                         }),
                         vitimas: (getEl('vitimas-container')?.children ? Array.from(getEl('vitimas-container').children) : []).map(div => {
                             const id = div.id.split('-')[1];
@@ -868,6 +860,7 @@
                         <option value="Autopropelido 1">Autopropelido 🛴</option>
                         <option value="Bicicleta 🚲">Bicicleta 🚲</option>
                         <option value="Pedestre 🧍🏻">Pedestre 🧍🏻</option>
+                        <option value="SEM INFORMAÇÃO">SEM INFORMAÇÃO</option>
                         <option value="Outros">Outros (Escrever manualmente)</option>
                     </select>
                 </div>
@@ -931,28 +924,45 @@
                 <button onclick="removeApoio(${id})" class="absolute top-2 right-2 text-slate-400 hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Apoio</label>
-                    <select id="apoio-tipo-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                    <select id="apoio-tipo-select-${id}" onchange="toggleManual(${id}, 'apoio', 'tipo')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
                         <option value="">Selecionar...</option>
                         <option value="PM">PM</option>
                         <option value="GCM">GCM</option>
+                        <option value="SEM INFORMAÇÃO">SEM INFORMAÇÃO</option>
+                        <option value="Escrever manualmente">Escrever manualmente</option>
                     </select>
+                    <div id="apoio-tipo-manual-container-${id}" class="hidden mt-2">
+                        <input type="text" id="apoio-tipo-manual-${id}" placeholder="Especificar apoio..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Prefixo VTR</label>
-                        <input type="text" id="apoio-prefixo-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <select id="apoio-prefixo-select-${id}" onchange="toggleManual(${id}, 'apoio', 'prefixo')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                            <option value="">Selecionar...</option>
+                            <option value="SEM INFORMAÇÃO">SEM INFORMAÇÃO</option>
+                            <option value="Escrever manualmente">Escrever manualmente</option>
+                        </select>
+                        <div id="apoio-prefixo-manual-container-${id}" class="hidden mt-2">
+                            <input type="text" id="apoio-prefixo-manual-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        </div>
                     </div>
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Responsável</label>
-                        <input type="text" id="apoio-responsavel-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <select id="apoio-responsavel-select-${id}" onchange="toggleManual(${id}, 'apoio', 'responsavel')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                            <option value="">Selecionar...</option>
+                            <option value="SEM INFORMAÇÃO">SEM INFORMAÇÃO</option>
+                            <option value="Escrever manualmente">Escrever manualmente</option>
+                        </select>
+                        <div id="apoio-responsavel-manual-container-${id}" class="hidden mt-2">
+                            <input type="text" id="apoio-responsavel-manual-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        </div>
                     </div>
                 </div>
             `;
             container.appendChild(div);
             if (data) {
-                document.getElementById(`apoio-tipo-${id}`).value = data.tipo;
-                document.getElementById(`apoio-prefixo-${id}`).value = data.prefixo || '';
-                document.getElementById(`apoio-responsavel-${id}`).value = data.responsavel || '';
+                setSectionValues(id, 'apoio', ['tipo', 'prefixo', 'responsavel'], data);
             }
             lucide.createIcons();
             saveDraft();
@@ -975,30 +985,47 @@
                 <button onclick="removeSocorro(${id})" class="absolute top-2 right-2 text-slate-400 hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Socorro</label>
-                    <select id="socorro-tipo-${id}" onchange="toggleSocorroVtrFields(${id})" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                    <select id="socorro-tipo-select-${id}" onchange="toggleSocorroVtrFields(${id}); toggleManual(${id}, 'socorro', 'tipo')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
                         <option value="">Selecionar...</option>
                         <option value="SAMU">SAMU</option>
                         <option value="Resgate">Resgate</option>
                         <option value="Vítima Recusou">Vítima Recusou</option>
                         <option value="Sem Necessidade">Sem Necessidade</option>
+                        <option value="SEM INFORMAÇÃO">SEM INFORMAÇÃO</option>
+                        <option value="Escrever manualmente">Escrever manualmente</option>
                     </select>
+                    <div id="socorro-tipo-manual-container-${id}" class="hidden mt-2">
+                        <input type="text" id="socorro-tipo-manual-${id}" placeholder="Especificar socorro..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                    </div>
                 </div>
                 <div id="socorro-vtr-fields-${id}" class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Prefixo VTR</label>
-                        <input type="text" id="socorro-prefixo-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <select id="socorro-prefixo-select-${id}" onchange="toggleManual(${id}, 'socorro', 'prefixo')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                            <option value="">Selecionar...</option>
+                            <option value="SEM INFORMAÇÃO">SEM INFORMAÇÃO</option>
+                            <option value="Escrever manualmente">Escrever manualmente</option>
+                        </select>
+                        <div id="socorro-prefixo-manual-container-${id}" class="hidden mt-2">
+                            <input type="text" id="socorro-prefixo-manual-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        </div>
                     </div>
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Responsável</label>
-                        <input type="text" id="socorro-responsavel-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <select id="socorro-responsavel-select-${id}" onchange="toggleManual(${id}, 'socorro', 'responsavel')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                            <option value="">Selecionar...</option>
+                            <option value="SEM INFORMAÇÃO">SEM INFORMAÇÃO</option>
+                            <option value="Escrever manualmente">Escrever manualmente</option>
+                        </select>
+                        <div id="socorro-responsavel-manual-container-${id}" class="hidden mt-2">
+                            <input type="text" id="socorro-responsavel-manual-${id}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        </div>
                     </div>
                 </div>
             `;
             container.appendChild(div);
             if (data) {
-                document.getElementById(`socorro-tipo-${id}`).value = data.tipo;
-                document.getElementById(`socorro-prefixo-${id}`).value = data.prefixo || '';
-                document.getElementById(`socorro-responsavel-${id}`).value = data.responsavel || '';
+                setSectionValues(id, 'socorro', ['tipo', 'prefixo', 'responsavel'], data);
             }
             toggleSocorroVtrFields(id);
             lucide.createIcons();
@@ -1011,9 +1038,12 @@
         }
 
         function toggleSocorroVtrFields(id) {
-            const tipo = document.getElementById(`socorro-tipo-${id}`).value;
+            const select = document.getElementById(`socorro-tipo-select-${id}`);
+            if (!select) return;
+            const tipo = select.value === 'Escrever manualmente' ? getVal(`socorro-tipo-manual-${id}`) : select.value;
             const showFields = tipo === 'SAMU' || tipo === 'Resgate';
-            document.getElementById(`socorro-vtr-fields-${id}`).classList.toggle('hidden', !showFields);
+            const fields = document.getElementById(`socorro-vtr-fields-${id}`);
+            if (fields) fields.classList.toggle('hidden', !showFields);
             saveDraft();
         }
 
@@ -1026,57 +1056,64 @@
             saveDraft();
         }
 
-        function toggleVitimaManual(id, field) {
-            const select = document.getElementById(`vitima-${field}-select-${id}`);
-            const manualContainer = document.getElementById(`vitima-${field}-manual-container-${id}`);
-            if (select.value === 'Escrever manualmente') {
-                manualContainer.classList.remove('hidden');
-            } else {
-                manualContainer.classList.add('hidden');
+        function toggleManual(id, section, field) {
+            const select = document.getElementById(`${section}-${field}-select-${id}`);
+            const manualContainer = document.getElementById(`${section}-${field}-manual-container-${id}`);
+            if (select && manualContainer) {
+                manualContainer.classList.toggle('hidden', select.value !== 'Escrever manualmente');
             }
             saveDraft();
         }
 
-        function getVitimaData(id) {
-            const getValFromSelect = (field) => {
-                const sel = getVal(`vitima-${field}-select-${id}`);
-                if (sel === 'Escrever manualmente') return getVal(`vitima-${field}-manual-${id}`);
-                return sel;
-            };
-
-            return {
-                nome: getValFromSelect('nome'),
-                sexo: getValFromSelect('sexo'),
-                estado: getValFromSelect('estado'),
-                descricao: getValFromSelect('descricao')
-            };
+        function getSectionData(id, section, fields) {
+            const data = {};
+            fields.forEach(field => {
+                const sel = getVal(`${section}-${field}-select-${id}`);
+                if (sel === 'Escrever manualmente') {
+                    data[field] = getVal(`${section}-${field}-manual-${id}`);
+                } else {
+                    data[field] = sel;
+                }
+            });
+            return data;
         }
 
-        function setVitimaValues(id, data) {
-            const setValForSelect = (field, value) => {
-                const select = document.getElementById(`vitima-${field}-select-${id}`);
-                const manualInput = document.getElementById(`vitima-${field}-manual-${id}`);
-                const manualContainer = document.getElementById(`vitima-${field}-manual-container-${id}`);
+        function setSectionValues(id, section, fields, data) {
+            fields.forEach(field => {
+                const select = document.getElementById(`${section}-${field}-select-${id}`);
+                const manualInput = document.getElementById(`${section}-${field}-manual-${id}`);
+                const manualContainer = document.getElementById(`${section}-${field}-manual-container-${id}`);
+                const value = data[field];
 
                 if (!value) {
-                    select.value = '';
+                    if (select) select.value = '';
                     return;
                 }
 
-                const options = Array.from(select.options).map(o => o.value);
-                if (options.includes(value)) {
-                    select.value = value;
-                } else {
-                    select.value = 'Escrever manualmente';
-                    if (manualInput) manualInput.value = value;
-                    if (manualContainer) manualContainer.classList.remove('hidden');
+                if (select) {
+                    const options = Array.from(select.options).map(o => o.value);
+                    if (options.includes(value)) {
+                        select.value = value;
+                    } else {
+                        select.value = 'Escrever manualmente';
+                        if (manualInput) manualInput.value = value;
+                        if (manualContainer) manualContainer.classList.remove('hidden');
+                    }
                 }
-            };
+            });
+        }
 
-            setValForSelect('nome', data.nome);
-            setValForSelect('sexo', data.sexo);
-            setValForSelect('estado', data.estado);
-            setValForSelect('descricao', data.descricao);
+        function toggleVitimaManual(id, field) {
+            toggleManual(id, 'vitima', field);
+        }
+
+        function getVitimaData(id) {
+            const data = getSectionData(id, 'vitima', ['nome', 'sexo', 'estado', 'descricao']);
+            return data;
+        }
+
+        function setVitimaValues(id, data) {
+            setSectionValues(id, 'vitima', ['nome', 'sexo', 'estado', 'descricao'], data);
         }
 
         function addVitima(data = null) {
@@ -1783,19 +1820,11 @@
                                 }),
                                 apoio: (getEl('apoio-container')?.children ? Array.from(getEl('apoio-container').children) : []).map(div => {
                                     const id = div.id.split('-')[1];
-                                    return {
-                                        tipo: getVal(`apoio-tipo-${id}`),
-                                        prefixo: getVal(`apoio-prefixo-${id}`),
-                                        responsavel: getVal(`apoio-responsavel-${id}`)
-                                    };
+                                    return getSectionData(id, 'apoio', ['tipo', 'prefixo', 'responsavel']);
                                 }),
                                 socorro: (getEl('socorro-container')?.children ? Array.from(getEl('socorro-container').children) : []).map(div => {
                                     const id = div.id.split('-')[1];
-                                    return {
-                                        tipo: getVal(`socorro-tipo-${id}`),
-                                        prefixo: getVal(`socorro-prefixo-${id}`),
-                                        responsavel: getVal(`socorro-responsavel-${id}`)
-                                    };
+                                    return getSectionData(id, 'socorro', ['tipo', 'prefixo', 'responsavel']);
                                 }),
                                 vitimas: (getEl('vitimas-container')?.children ? Array.from(getEl('vitimas-container').children) : []).map(div => {
                                     const id = div.id.split('-')[1];
@@ -1875,19 +1904,11 @@
                             }),
                             apoio: (getEl('apoio-container')?.children ? Array.from(getEl('apoio-container').children) : []).map(div => {
                                 const id = div.id.split('-')[1];
-                                return {
-                                    tipo: getVal(`apoio-tipo-${id}`),
-                                    prefixo: getVal(`apoio-prefixo-${id}`),
-                                    responsavel: getVal(`apoio-responsavel-${id}`)
-                                };
+                                return getSectionData(id, 'apoio', ['tipo', 'prefixo', 'responsavel']);
                             }),
                             socorro: (getEl('socorro-container')?.children ? Array.from(getEl('socorro-container').children) : []).map(div => {
                                 const id = div.id.split('-')[1];
-                                return {
-                                    tipo: getVal(`socorro-tipo-${id}`),
-                                    prefixo: getVal(`socorro-prefixo-${id}`),
-                                    responsavel: getVal(`socorro-responsavel-${id}`)
-                                };
+                                return getSectionData(id, 'socorro', ['tipo', 'prefixo', 'responsavel']);
                             }),
                             vitimas: (getEl('vitimas-container')?.children ? Array.from(getEl('vitimas-container').children) : []).map(div => {
                                 const id = div.id.split('-')[1];
@@ -2362,19 +2383,11 @@
                 }),
                 apoio: Array.from(getEl('apoio-container').children).map(div => {
                     const id = div.id.split('-')[1];
-                    return {
-                        tipo: getVal(`apoio-tipo-${id}`),
-                        prefixo: getVal(`apoio-prefixo-${id}`),
-                        responsavel: getVal(`apoio-responsavel-${id}`)
-                    };
+                    return getSectionData(id, 'apoio', ['tipo', 'prefixo', 'responsavel']);
                 }),
                 socorro: Array.from(getEl('socorro-container').children).map(div => {
                     const id = div.id.split('-')[1];
-                    return {
-                        tipo: getVal(`socorro-tipo-${id}`),
-                        prefixo: getVal(`socorro-prefixo-${id}`),
-                        responsavel: getVal(`socorro-responsavel-${id}`)
-                    };
+                    return getSectionData(id, 'socorro', ['tipo', 'prefixo', 'responsavel']);
                 }),
                 vitimas: Array.from(getEl('vitimas-container').children).map(div => {
                     const id = div.id.split('-')[1];
