@@ -924,7 +924,7 @@
                 <button onclick="removeApoio(${id})" class="absolute top-2 right-2 text-slate-400 hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Apoio</label>
-                    <select id="apoio-tipo-select-${id}" onchange="toggleManual(${id}, 'apoio', 'tipo')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                    <select id="apoio-tipo-select-${id}" onchange="toggleApoioVtrFields(${id}); toggleManual(${id}, 'apoio', 'tipo')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
                         <option value="">Selecionar...</option>
                         <option value="PM">PM</option>
                         <option value="GCM">GCM</option>
@@ -932,10 +932,10 @@
                         <option value="Escrever manualmente">Escrever manualmente</option>
                     </select>
                     <div id="apoio-tipo-manual-container-${id}" class="hidden mt-2">
-                        <input type="text" id="apoio-tipo-manual-${id}" placeholder="Especificar apoio..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <input type="text" id="apoio-tipo-manual-${id}" oninput="toggleApoioVtrFields(${id})" placeholder="Especificar apoio..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div id="apoio-vtr-fields-${id}" class="hidden grid grid-cols-2 gap-3">
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Prefixo VTR</label>
                         <select id="apoio-prefixo-select-${id}" onchange="toggleManual(${id}, 'apoio', 'prefixo')" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
@@ -964,7 +964,18 @@
             if (data) {
                 setSectionValues(id, 'apoio', ['tipo', 'prefixo', 'responsavel'], data);
             }
+            toggleApoioVtrFields(id);
             lucide.createIcons();
+            saveDraft();
+        }
+
+        function toggleApoioVtrFields(id) {
+            const select = document.getElementById(`apoio-tipo-select-${id}`);
+            if (!select) return;
+            const val = select.value;
+            const showFields = val !== '' && val !== 'SEM INFORMAÇÃO';
+            const fields = document.getElementById(`apoio-vtr-fields-${id}`);
+            if (fields) fields.classList.toggle('hidden', !showFields);
             saveDraft();
         }
 
@@ -995,7 +1006,7 @@
                         <option value="Escrever manualmente">Escrever manualmente</option>
                     </select>
                     <div id="socorro-tipo-manual-container-${id}" class="hidden mt-2">
-                        <input type="text" id="socorro-tipo-manual-${id}" placeholder="Especificar socorro..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
+                        <input type="text" id="socorro-tipo-manual-${id}" oninput="toggleSocorroVtrFields(${id})" placeholder="Especificar socorro..." class="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm">
                     </div>
                 </div>
                 <div id="socorro-vtr-fields-${id}" class="grid grid-cols-2 gap-3">
